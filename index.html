@@ -266,6 +266,8 @@
         backdrop-filter: blur(10px);
         transition: all 0.3s ease;
       }
+      .room-player-name { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 900; }
+      .room-player-ping { color: var(--accent-cyan); font-size: .78rem; font-weight: 800; font-variant-numeric: tabular-nums; }
 
       .player-status-badge {
         font-size: 0.8rem;
@@ -401,6 +403,13 @@
         );
         animation-delay: -1.75s;
       }
+
+      #game-container[data-venue="rooftop"] .stage-background { background: radial-gradient(ellipse at 50% 12%, #354363 0%, #151c2b 38%, #080b12 84%); }
+      #game-container[data-venue="warehouse"] .stage-background { background: radial-gradient(ellipse at 50% 18%, #493329 0%, #211b20 42%, #090b12 86%); }
+      #game-container[data-venue="beach"] .stage-background { background: radial-gradient(ellipse at 50% 15%, #18505b 0%, #122c3d 40%, #080b12 86%); }
+      #game-container[data-venue="rooftop"] .spotlight { filter: hue-rotate(28deg); }
+      #game-container[data-venue="warehouse"] .spotlight { filter: hue-rotate(125deg) saturate(.8); }
+      #game-container[data-venue="beach"] .spotlight { filter: hue-rotate(175deg); }
 
       @keyframes swing {
         0% {
@@ -818,6 +827,202 @@
         *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
       }
 
+      /* A more restrained arcade cabinet look for the menus and overlays. */
+      :root {
+        --bg: #090b12;
+        --accent-pink: #ff4e72;
+        --accent-cyan: #62d9d0;
+        --accent-yellow: #f4c66a;
+        --accent-green: #73d6a1;
+        --accent-purple: #7b6acb;
+        --glass: rgba(255,255,255,.045);
+        --glass-border: rgba(255,255,255,.12);
+      }
+      body { background: #090b12; }
+      #menu {
+        justify-content: flex-start;
+        gap: 10px;
+        padding-top: max(7vh, env(safe-area-inset-top));
+        background:
+          radial-gradient(ellipse at 50% 0%, rgba(92,78,151,.22), transparent 48%),
+          linear-gradient(160deg,#11131c 0%,#090b12 62%,#101018 100%);
+      }
+      #menu::before {
+        inset: 8% 20% auto;
+        height: 150px;
+        background: radial-gradient(ellipse,rgba(244,198,106,.09),transparent 70%);
+        filter: blur(30px);
+      }
+      #menu .brand-title {
+        font-size: clamp(2.5rem, 8vw, 4.4rem);
+        letter-spacing: -.065em;
+        background: linear-gradient(180deg,#fff 8%,#c9c6e5 62%,#8f87bc 100%);
+        -webkit-background-clip: text;
+        filter: drop-shadow(0 8px 26px rgba(121,105,190,.18));
+        animation: none;
+      }
+      #menu .brand-subtitle {
+        margin: 0 0 12px;
+        color: #b5b2c4;
+        font-size: .66rem;
+        letter-spacing: .32em;
+      }
+      #menu .card-container {
+        width: min(100%, 440px);
+        max-width: 440px;
+        gap: 9px;
+        padding: 16px;
+        border: 1px solid rgba(255,255,255,.095);
+        border-radius: 20px;
+        background: rgba(19,20,29,.9);
+        box-shadow: 0 18px 55px rgba(0,0,0,.36);
+        backdrop-filter: blur(14px);
+      }
+      #menu .input-ui {
+        min-height: 46px;
+        padding: 11px 14px;
+        border-radius: 11px;
+        border-color: rgba(255,255,255,.1);
+        background-color: #10121a;
+        text-align: left;
+        font-size: .8rem;
+      }
+      #menu .btn-ui {
+        min-height: 43px;
+        padding: 11px 15px;
+        border-radius: 11px;
+        border-color: rgba(255,255,255,.09);
+        background-color: rgba(255,255,255,.045);
+        box-shadow: none;
+        font-size: .76rem;
+        letter-spacing: .08em;
+      }
+      #menu .btn-ui:hover {
+        transform: translateY(-1px);
+        border-color: rgba(255,255,255,.2);
+        background-color: rgba(255,255,255,.09);
+        box-shadow: 0 8px 20px rgba(0,0,0,.2);
+      }
+      #menu .btn-primary {
+        border: 0;
+        color: #11121a;
+        background: linear-gradient(110deg,#f2cb78,#e9a85d);
+        box-shadow: 0 7px 20px rgba(226,166,83,.17);
+      }
+      #menu .btn-primary:hover { background: linear-gradient(110deg,#ffdb8c,#f2b76b); }
+      #menu .bg-particles { opacity: .28; }
+      #settings-modal, #lobby-modal, #achievement-modal, #result-modal {
+        background: rgba(8,9,14,.96);
+        backdrop-filter: blur(18px);
+      }
+      #settings-modal h2, #achievement-title { color: #f0d08a; letter-spacing: .08em; }
+      .setting-row, .key-binding-row, .achievement-item, .player-card, .result-card {
+        border-color: rgba(255,255,255,.1);
+        background: #141620;
+      }
+      .key-binding-button { border-radius: 9px; }
+      .player-card { border-radius: 16px; }
+      .room-badge { color: var(--accent-cyan); border-color: rgba(98,217,208,.5); }
+      .result-card {
+        border-radius: 20px;
+        background: linear-gradient(145deg,#191a25,#101119);
+        box-shadow: 0 24px 70px rgba(0,0,0,.46);
+      }
+      .result-score { color: #f0d08a; text-shadow: none; }
+      .result-card .btn-primary {
+        border: 0;
+        color: #11121a;
+        background: linear-gradient(110deg,#f2cb78,#e9a85d);
+        box-shadow: none;
+      }
+      @media (max-height: 760px) {
+        #menu { padding-top: max(18px, env(safe-area-inset-top)); gap: 5px; }
+        #menu .brand-title { font-size: clamp(2.1rem, 7vh, 3.2rem); }
+        #menu .brand-subtitle { margin-bottom: 4px; }
+        #menu .card-container { padding: 11px; gap: 6px; }
+        #menu .btn-ui { min-height: 38px; padding-block: 8px; }
+        #menu .input-ui { min-height: 40px; padding-block: 8px; }
+      }
+      @media (max-width: 700px) {
+        #menu { padding-inline: 14px; }
+        #menu .card-container { width: min(100%, 430px); }
+      }
+      /* Touch-first motion and sizing refinements. */
+      html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+      body { overscroll-behavior: none; -webkit-touch-callout: none; }
+      button, a, label, select, input { -webkit-tap-highlight-color: transparent; }
+      button, select, input[type="range"], label[for] { touch-action: manipulation; }
+      .btn-ui, .input-ui, .player-card, .key-binding-button,
+      .game-audio-controls button, .game-fullscreen, .btn-exit {
+        transition: transform 160ms cubic-bezier(.2,.75,.25,1),
+          background-color 180ms ease, border-color 180ms ease,
+          box-shadow 180ms ease, opacity 180ms ease;
+      }
+      .btn-ui:active, .key-binding-button:active,
+      .game-audio-controls button:active, .game-fullscreen:active {
+        transform: scale(.97);
+      }
+      .btn-ui:focus-visible, .input-ui:focus-visible,
+      .key-binding-button:focus-visible, .game-audio-controls button:focus-visible {
+        outline: 2px solid rgba(244,198,106,.8);
+        outline-offset: 3px;
+      }
+      #menu, #settings-modal, #lobby-modal, #achievement-modal, #result-modal {
+        padding-left: max(14px, env(safe-area-inset-left));
+        padding-right: max(14px, env(safe-area-inset-right));
+      }
+      #settings-modal, #lobby-modal, #achievement-modal, #result-modal {
+        overscroll-behavior: contain;
+      }
+      #settings-modal, #lobby-modal {
+        gap: 14px;
+        justify-content: flex-start;
+        padding-top: max(28px, env(safe-area-inset-top));
+        padding-bottom: max(24px, env(safe-area-inset-bottom));
+      }
+      #settings-modal .setting-row { width: min(100%, 420px); gap: 14px; }
+      #settings-modal .key-bindings { width: min(100%, 420px); }
+      #settings-modal > .btn-ui { width: min(100%, 420px) !important; margin-top: 8px !important; }
+      .player-card-list { width: min(100%, 480px); }
+      #lobby-modal .card-container { width: min(100%, 420px); }
+      .btn-ui, .input-ui { min-height: 46px; }
+      .btn-ui { touch-action: manipulation; }
+      .achievement-list { width: min(100%, 420px); }
+      .result-card { max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; }
+      @media (max-width: 700px) {
+        #menu {
+          padding-top: max(22px, env(safe-area-inset-top));
+          padding-bottom: max(18px, env(safe-area-inset-bottom));
+          gap: 5px;
+        }
+        #menu .brand-title { font-size: clamp(2.2rem, 11vw, 3.2rem); }
+        #menu .brand-subtitle { font-size: .58rem; letter-spacing: .24em; }
+        #menu .card-container { padding: 12px; gap: 7px; border-radius: 17px; }
+        #menu .btn-ui { min-height: 44px; font-size: .7rem; }
+        #menu .input-ui { min-height: 42px; font-size: .76rem; }
+        #settings-modal, #lobby-modal { gap: 11px; }
+        #settings-modal .setting-row { font-size: .78rem; }
+        #settings-modal .btn-ui, #lobby-modal .btn-ui { min-height: 46px; }
+        .player-card-list { margin: 10px 0; }
+        .result-card { width: min(100%, 420px); padding: 22px 18px; border-radius: 18px; }
+        .result-card h2 { font-size: 1.55rem; }
+        .result-score { font-size: 2.2rem; }
+      }
+      @media (max-height: 700px) {
+        #settings-modal, #lobby-modal { gap: 8px; padding-top: max(12px, env(safe-area-inset-top)); }
+        #settings-modal h2 { margin-bottom: 0 !important; }
+        #settings-modal h3 { margin-top: 5px !important; font-size: .9rem; }
+        #settings-modal > p { font-size: .65rem !important; }
+        #settings-modal .setting-row { margin-top: 4px !important; }
+        .player-card { padding-block: 10px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .btn-ui, .input-ui, .player-card, .key-binding-button,
+        .game-audio-controls button, .game-fullscreen, .btn-exit {
+          transition-duration: .01ms;
+        }
+      }
+
       .feedback {
         position: absolute;
         bottom: 170px;
@@ -852,9 +1057,14 @@
           <option value="2">🎵 Song 3: Speed Metal (Fast/Hard)</option>
           <option value="3">🎵 Song 4: Neon Marathon (~1 menit)</option>
         </select>
-        <label class="btn-ui" for="custom-song-file" style="display:block;text-align:center;cursor:pointer">PILIH LAGU SENDIRI (MP3/WAV)</label>
-        <input id="custom-song-file" type="file" accept="audio/*" style="display:none" onchange="loadCustomSong(this.files[0])" />
+        <label class="btn-ui" for="custom-song-file" style="display:block;text-align:center;cursor:pointer">PILIH AUDIO LOKAL (MP3/WAV)</label>
+        <input id="custom-song-file" type="file" accept="audio/mpeg,audio/wav,audio/x-wav,audio/wave,.mp3,.wav" style="display:none" onchange="loadCustomSong(this.files[0])" />
         <div id="custom-song-name" style="display:none;color:var(--accent-cyan);font-size:.78rem;text-align:center"></div>
+        <label style="font-size:.72rem;color:rgba(255,255,255,.72)">Atau tautan MP3/WAV untuk room
+          <input id="custom-song-url" type="url" class="input-ui" placeholder="https://situs.com/lagu.mp3" autocomplete="url" />
+        </label>
+        <button id="verify-song-url" class="btn-ui" type="button">VERIFIKASI TAUTAN AUDIO</button>
+        <div id="custom-url-status" class="song-load-status" role="status" aria-live="polite"></div>
         <div id="custom-song-load" class="song-load-status" role="status" aria-live="polite" data-state="idle">
           <span id="custom-song-load-message">Menyiapkan lagu...</span>
           <div class="song-load-track" role="progressbar" aria-label="Progres pemuatan lagu" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="custom-song-load-fill" class="song-load-fill"></div></div>
@@ -880,6 +1090,17 @@
           <option value="medium" selected>MEDIUM</option>
           <option value="hard">HARD</option>
         </select>
+
+        <label style="font-size:.72rem;color:rgba(255,255,255,.72)">Skin
+          <select id="skin-select" class="input-ui" aria-label="Pilih skin permainan">
+            <option value="neon">Neon klasik</option><option value="sunset">Senja emas</option><option value="mint">Mint arcade</option>
+          </select>
+        </label>
+        <label style="font-size:.72rem;color:rgba(255,255,255,.72)">Tempat bermain
+          <select id="venue-select" class="input-ui" aria-label="Pilih tempat bermain">
+            <option value="rooftop">Atap kota</option><option value="warehouse">Gudang konser</option><option value="beach">Pantai malam</option>
+          </select>
+        </label>
 
         <button class="btn-ui btn-primary game-start-button" onclick="startGame(1)">
           SINGLE PLAYER
@@ -921,11 +1142,14 @@
       <div class="room-badge">
         ROOM ID: <span id="display-room-id">---</span>
       </div>
+      <p id="room-song-status" style="max-width:90%;text-align:center;color:rgba(255,255,255,.72);font-size:.82rem">Lagu room akan ditentukan oleh Player 1.</p>
 
       <div class="player-card-list">
         <div class="player-card" id="card-p1">
           <div style="font-size: 2.5rem">🎧</div>
           <div style="font-weight: 800">PLAYER 1</div>
+          <div class="room-player-name" id="name-p1">Menunggu pemain…</div>
+          <div class="room-player-ping">PING <span id="ping-p1">—</span></div>
           <div class="player-status-badge status-not-ready" id="status-p1">
             BELUM SIAP
           </div>
@@ -933,6 +1157,8 @@
         <div class="player-card" id="card-p2">
           <div style="font-size: 2.5rem">🎸</div>
           <div style="font-weight: 800">PLAYER 2</div>
+          <div class="room-player-name" id="name-p2">Menunggu pemain…</div>
+          <div class="room-player-ping">PING <span id="ping-p2">—</span></div>
           <div class="player-status-badge status-not-ready" id="status-p2">
             MENUNGGU...
           </div>
@@ -1170,6 +1396,9 @@
       let selectedPlayerCount = 1;
       let roundFinished = false;
       let customSongUrl = null;
+      let customSongFile = null;
+      let verifiedRoomSongLink = null;
+      let roomSongReadyForPlay = false;
       let customSongAudio = null;
       let customSongSelected = false;
       let customSongReady = false;
@@ -1465,6 +1694,8 @@
 
       function loadCustomSong(file) {
         if (!file) return;
+        verifiedRoomSongLink = null;
+        customSongFile = file;
         const token = ++customSongLoadToken;
         customSongReady = false;
         customSongSelected = true;
@@ -1502,13 +1733,270 @@
         audio.addEventListener("progress", () => updateCustomSongBuffer(audio, token));
         audio.addEventListener("canplay", markReady, { once: true });
         audio.addEventListener("error", markError, { once: true });
+        audio.addEventListener("loadedmetadata", () => {
+          if (audio.duration === Infinity || Number.isNaN(audio.duration) || audio.duration <= 0) {
+            markError();
+            setCustomSongLoad("error", "Audio tidak valid atau formatnya tidak didukung.", 0);
+          }
+        }, { once: true });
         audio.load();
       }
+
+      function isMp3OrWavUrl(rawUrl, contentType = "") {
+        try {
+          const url = new URL(rawUrl);
+          if (url.protocol !== "https:") return false;
+          const path = url.pathname.toLowerCase();
+          const type = contentType.toLowerCase().split(";")[0].trim();
+          return /\.mp3$/.test(path) && ["", "audio/mpeg", "audio/mp3", "application/octet-stream"].includes(type)
+            || /\.wav$/.test(path) && ["", "audio/wav", "audio/x-wav", "audio/wave", "audio/vnd.wave", "application/octet-stream"].includes(type);
+        } catch (_) { return false; }
+      }
+
+      async function inspectAudioSignature(url) {
+        try {
+          const response = await fetch(url, { method: "GET", mode: "cors", headers: { Range: "bytes=0-11" }, cache: "no-store" });
+          if (!response.ok) throw new Error("Tautan tidak bisa diakses (HTTP " + response.status + ").");
+          const contentType = response.headers.get("content-type") || "";
+          if (!isMp3OrWavUrl(url, contentType)) throw new Error("Server menyajikan tipe file yang tidak cocok dengan ekstensi .mp3/.wav.");
+          let bytes;
+          if (response.body?.getReader) {
+            const reader = response.body.getReader();
+            const chunks = [];
+            let total = 0;
+            while (total < 12) {
+              const { value, done } = await reader.read();
+              if (done) break;
+              chunks.push(value);
+              total += value.length;
+            }
+            await reader.cancel();
+            bytes = new Uint8Array(Math.min(total, 12));
+            let offset = 0;
+            for (const chunk of chunks) {
+              const length = Math.min(chunk.length, bytes.length - offset);
+              if (length <= 0) break;
+              bytes.set(chunk.subarray(0, length), offset);
+              offset += length;
+            }
+          } else {
+            bytes = new Uint8Array(await response.arrayBuffer()).subarray(0, 12);
+          }
+          const mp3 = bytes.length >= 3 && ((bytes[0] === 0x49 && bytes[1] === 0x44 && bytes[2] === 0x33) || (bytes[0] === 0xff && (bytes[1] & 0xe0) === 0xe0));
+          const wav = bytes.length >= 12 && String.fromCharCode(...bytes.slice(0, 4)) === "RIFF" && String.fromCharCode(...bytes.slice(8, 12)) === "WAVE";
+          const isMp3 = new URL(url).pathname.toLowerCase().endsWith(".mp3");
+          if (!(isMp3 ? mp3 : wav)) throw new Error("Isi file tidak cocok dengan ekstensi MP3/WAV.");
+          return { signatureVerified: true, contentType };
+        } catch (error) {
+          if (error instanceof TypeError || /fetch|network|cors/i.test(error.message)) {
+            return { signatureVerified: false, contentType: "" };
+          }
+          throw error;
+        }
+      }
+
+      async function verifyRoomSongLink(rawUrl) {
+        const status = document.getElementById("custom-url-status");
+        const url = String(rawUrl || "").trim();
+        status.classList.add("visible");
+        status.dataset.state = "loading";
+        status.textContent = "Memeriksa audio dan durasinya…";
+        verifiedRoomSongLink = null;
+        if (!isMp3OrWavUrl(url)) {
+          status.dataset.state = "error";
+          status.textContent = "Gunakan tautan HTTPS langsung yang berakhiran .mp3 atau .wav.";
+          return false;
+        }
+        try {
+          const audio = new Audio();
+          audio.preload = "metadata";
+          audio.src = url;
+          await new Promise((resolve, reject) => {
+            const timeout = setTimeout(() => reject(new Error("Audio tidak selesai diperiksa.")), 12000);
+            audio.addEventListener("loadedmetadata", () => { clearTimeout(timeout); resolve(); }, { once: true });
+            audio.addEventListener("error", () => { clearTimeout(timeout); reject(new Error("Browser tidak bisa memutar file ini.")); }, { once: true });
+            audio.load();
+          });
+          if (!Number.isFinite(audio.duration) || audio.duration <= 0) throw new Error("Durasi audio tidak valid.");
+          const inspection = await inspectAudioSignature(url);
+
+          verifiedRoomSongLink = { url, name: decodeURIComponent(new URL(url).pathname.split("/").pop()) || "Lagu tautan", type: inspection.contentType, duration: audio.duration, signatureVerified: inspection.signatureVerified };
+          roomSongReadyForPlay = true;
+          customSongSelected = true;
+          customSongReady = true;
+          customSongFile = null;
+          customSongUrl = url;
+          customSongAudio = audio;
+          audio.name = verifiedRoomSongLink.name;
+          document.getElementById("song-select").value = "custom";
+          document.getElementById("custom-song-name").textContent = `Tautan terverifikasi: ${audio.name}`;
+          document.getElementById("custom-song-name").style.display = "block";
+          status.dataset.state = "ready";
+          status.textContent = inspection.signatureVerified
+            ? `Valid · signature MP3/WAV cocok · ${formatSongTime(audio.duration * 1000)}`
+            : `Audio dapat diputar · ekstensi .${new URL(url).pathname.toLowerCase().endsWith(".mp3") ? "mp3" : "wav"} · ${formatSongTime(audio.duration * 1000)} · server membatasi verifikasi signature (CORS)`;
+          return true;
+        } catch (error) {
+          status.dataset.state = "error";
+          status.textContent = error.message;
+          return false;
+        }
+      }
+
+      document.getElementById("verify-song-url").addEventListener("click", () => verifyRoomSongLink(document.getElementById("custom-song-url").value));
+      document.getElementById("custom-song-url").addEventListener("input", (event) => {
+        if (verifiedRoomSongLink?.url !== event.target.value.trim()) {
+          verifiedRoomSongLink = null;
+          if (customSongFile === null && customSongSelected) {
+            customSongSelected = false;
+            customSongReady = false;
+            roomSongReadyForPlay = false;
+          }
+        }
+      });
 
       function selectBuiltInSong() {
         if (document.getElementById("song-select").value !== "custom") {
           customSongSelected = false;
+          customSongFile = null;
           document.querySelectorAll(".game-start-button").forEach((button) => { button.disabled = false; });
+        }
+      }
+
+      const visualSkins = {
+        neon: { pink: "#ff4e72", cyan: "#62d9d0", yellow: "#f4c66a", green: "#73d6a1", purple: "#7b6acb" },
+        sunset: { pink: "#ff718a", cyan: "#f2a66c", yellow: "#ffe08a", green: "#a6d49f", purple: "#b274a8" },
+        mint: { pink: "#ed79a9", cyan: "#65e6c2", yellow: "#c4e27b", green: "#70dfa0", purple: "#718bd1" },
+      };
+
+      function applyVisualPreferences() {
+        const skin = document.getElementById("skin-select").value;
+        const venue = document.getElementById("venue-select").value;
+        const palette = visualSkins[skin] || visualSkins.neon;
+        const root = document.documentElement;
+        root.style.setProperty("--accent-pink", palette.pink);
+        root.style.setProperty("--accent-cyan", palette.cyan);
+        root.style.setProperty("--accent-yellow", palette.yellow);
+        root.style.setProperty("--accent-green", palette.green);
+        root.style.setProperty("--accent-purple", palette.purple);
+        document.getElementById("game-container").dataset.venue = venue;
+        localStorage.setItem("musikManiaSkin", skin);
+        localStorage.setItem("musikManiaVenue", venue);
+      }
+
+      function loadVisualPreferences() {
+        const skin = localStorage.getItem("musikManiaSkin") || "neon";
+        const venue = localStorage.getItem("musikManiaVenue") || "rooftop";
+        document.getElementById("skin-select").value = visualSkins[skin] ? skin : "neon";
+        document.getElementById("venue-select").value = ["rooftop", "warehouse", "beach"].includes(venue) ? venue : "rooftop";
+        applyVisualPreferences();
+      }
+
+      document.getElementById("skin-select").addEventListener("change", applyVisualPreferences);
+      document.getElementById("venue-select").addEventListener("change", applyVisualPreferences);
+
+      function setRoomSongStatus(message) {
+        document.getElementById("room-song-status").textContent = message;
+      }
+
+      async function publishRoomSong() {
+        const roomRef = roomRefCurrent;
+        if (!roomRef || playerRole !== 0) return;
+        const songIndex = Number(document.getElementById("song-select").value) || 0;
+        const common = {
+          songDifficulty: document.getElementById("difficulty").value,
+          songUpdatedAt: Date.now(),
+          gameStarted: false,
+          p1_ready: false,
+          p2_ready: false,
+        };
+        if (customSongSelected) {
+          if (!customSongReady) throw new Error("Pilih audio atau verifikasi tautan MP3/WAV sebelum bersiap.");
+          if (!customSongFile && !verifiedRoomSongLink) throw new Error("Lagu lokal tidak bisa dibagikan dengan tautan room. Masukkan tautan HTTPS publik MP3/WAV lalu verifikasi.");
+          const songUrl = verifiedRoomSongLink?.url;
+          if (!songUrl) throw new Error("Room hanya menerima lagu berbentuk tautan HTTPS publik MP3/WAV.");
+          await window.updateDoc(roomRef, {
+            ...common,
+            songMode: "custom",
+            songName: verifiedRoomSongLink.name.slice(0, 120),
+            songUrl,
+            songBpm: Math.max(50, Math.min(240, Number(document.getElementById("custom-bpm").value) || 120)),
+            songKey: document.getElementById("custom-key").value,
+            songScale: document.getElementById("custom-scale").value,
+          });
+          roomSongReadyForPlay = true;
+        } else {
+          roomSongReadyForPlay = true;
+          const songName = document.getElementById("song-select").selectedOptions[0]?.textContent.trim() || `Lagu ${songIndex + 1}`;
+          await window.updateDoc(roomRef, { ...common, songMode: "builtin", songIndex, songName });
+        }
+      }
+
+      async function applyRoomSong(data) {
+        if (!data.songMode) {
+          setRoomSongStatus("Player 1 belum memilih lagu.");
+          return;
+        }
+        const version = `${data.songMode}:${data.songUpdatedAt || 0}:${data.songUrl || data.songIndex}`;
+        setRoomSongStatus(`Lagu room: ${data.songName || "Musik Mania"}${playerRole === 0 ? " · Host" : " · mengikuti host"}`);
+        if (version === roomSongVersion) return;
+        if (playerRole === 0) {
+          roomSongVersion = version;
+          roomSongReadyForPlay = data.songMode === "builtin" || Boolean(verifiedRoomSongLink?.url === data.songUrl);
+          return;
+        }
+        roomSongVersion = version;
+        document.getElementById("song-select").disabled = true;
+        document.getElementById("custom-song-file").disabled = true;
+        document.getElementById("difficulty").disabled = true;
+        document.getElementById("difficulty").value = data.songDifficulty || "medium";
+        if (data.songMode === "builtin") {
+          roomSongReadyForPlay = true;
+          customSongSelected = false;
+          customSongReady = false;
+          customSongFile = null;
+          if (customSongAudio) customSongAudio.pause();
+          if (customSongUrl?.startsWith("blob:")) URL.revokeObjectURL(customSongUrl);
+          customSongUrl = null;
+          document.getElementById("song-select").value = String(data.songIndex ?? 0);
+          return;
+        }
+        roomSongReadyForPlay = false;
+        if (!data.songUrl) return;
+        setRoomSongStatus(`Memeriksa tautan lagu room: ${data.songName || "Lagu host"}…`);
+        try {
+          if (!isMp3OrWavUrl(data.songUrl)) throw new Error("Tautan lagu room bukan tautan HTTPS .mp3/.wav.");
+          if (customSongAudio) customSongAudio.pause();
+          if (customSongUrl?.startsWith("blob:")) URL.revokeObjectURL(customSongUrl);
+          customSongUrl = data.songUrl;
+          customSongFile = null;
+          const audio = new Audio();
+          customSongAudio = audio;
+          audio.name = data.songName || "Lagu room";
+          audio.preload = "auto";
+          audio.volume = songVolume;
+          audio.src = data.songUrl;
+          customSongSelected = true;
+          customSongReady = false;
+          document.getElementById("song-select").value = "custom";
+          document.getElementById("custom-bpm").value = String(data.songBpm || 120);
+          document.getElementById("custom-key").value = String(data.songKey ?? 0);
+          document.getElementById("custom-scale").value = data.songScale || "major";
+          await new Promise((resolve, reject) => {
+            audio.addEventListener("canplay", resolve, { once: true });
+            audio.addEventListener("error", () => reject(new Error("Audio room tidak dapat diputar.")), { once: true });
+            audio.load();
+          });
+          if (!Number.isFinite(audio.duration) || audio.duration <= 0) throw new Error("Durasi audio tidak valid.");
+          customSongReady = true;
+          roomSongReadyForPlay = true;
+          document.getElementById("custom-song-name").textContent = `Lagu room: ${audio.name}`;
+          document.getElementById("custom-song-name").style.display = "block";
+          setRoomSongStatus(`Lagu siap diputar: ${audio.name} · mengikuti pilihan Player 1`);
+        } catch (error) {
+          customSongReady = false;
+          roomSongReadyForPlay = false;
+          setRoomSongStatus(`Gagal memuat lagu room. ${error.message}`);
         }
       }
 
@@ -1627,6 +2115,8 @@
         playerRole = 0;
       let myReadyStatus = false;
       let unsubscribeRoom = null;
+      let roomSongVersion = "";
+      let roomGameLaunchStarted = false;
 
       function generateRoomCode() {
         const code = Math.floor(1000 + Math.random() * 9000).toString();
@@ -1661,6 +2151,12 @@
         }
 
         roomRefCurrent = roomRef;
+        roomSongVersion = "";
+        roomGameLaunchStarted = false;
+        document.getElementById("song-select").disabled = playerRole !== 0;
+        document.getElementById("custom-song-file").disabled = playerRole !== 0;
+        document.getElementById("difficulty").disabled = playerRole !== 0;
+        setRoomSongStatus(playerRole === 0 ? "Pilih lagu untuk dibagikan ke room." : "Menunggu lagu dari Player 1…");
         myOnlineName = (localStorage.getItem("musikManiaPlayerName") || prompt("Nama pemain:") || `Pemain ${playerRole + 1}`).trim().slice(0, 20);
         localStorage.setItem("musikManiaPlayerName", myOnlineName);
         const myRoomPrefix = `p${playerRole + 1}`;
@@ -1679,7 +2175,8 @@
         updateRoomPing();
         roomPingTimer = setInterval(updateRoomPing, 8000);
 
-        myReadyStatus = false;
+        const initialRoomData = docSnap.data();
+        myReadyStatus = Boolean(initialRoomData?.[`p${playerRole + 1}_ready`]);
         updateReadyButtonUI();
 
         document.getElementById("lobby-modal").style.display = "flex";
@@ -1688,6 +2185,8 @@
         unsubscribeRoom = window.onSnapshot(roomRef, (snapshot) => {
           const data = snapshot.data();
           if (!data) return;
+
+          applyRoomSong(data);
 
           // Update UI P1
           const statusP1El = document.getElementById("status-p1");
@@ -1709,6 +2208,11 @@
             statusP2El.className = "player-status-badge status-not-ready";
           }
 
+          document.getElementById("name-p1").textContent = data.p1_name || "Menunggu pemain…";
+          document.getElementById("name-p2").textContent = data.p2_name || "Menunggu pemain…";
+          document.getElementById("ping-p1").textContent = data.p1_ping == null ? "—" : `${data.p1_ping} ms`;
+          document.getElementById("ping-p2").textContent = data.p2_ping == null ? "—" : `${data.p2_ping} ms`;
+
           // Skor Online Sync saat Pertandingan Berlangsung
           if (
             document.getElementById("game-container").style.display === "flex"
@@ -1726,10 +2230,22 @@
           }
 
           // OTOMATIS MULAI GAME JIKA KEDUA PLAYER SIAP
-          if (data.p1_ready && data.p2_ready && !data.gameStarted) {
-            if (playerRole === 0) {
-              window.updateDoc(roomRef, { gameStarted: true });
-            }
+          if (playerRole === 0 && data.p1_ready && data.p2_ready && !data.gameStarted && !roomGameLaunchStarted) {
+            roomGameLaunchStarted = true;
+            window.updateDoc(roomRef, { gameStarted: true }).then(() => {
+              document.getElementById("lobby-modal").style.display = "none";
+              initEngine(isMobileLayout() ? 1 : 2);
+            }).catch((error) => {
+              roomGameLaunchStarted = false;
+              console.error("Room gagal memulai permainan", error);
+            });
+          }
+          if (data.gameStarted && data.songMode === "custom" && playerRole === 1 && !customSongReady) {
+            setRoomSongStatus("Menunggu lagu room selesai diunduh sebelum permainan dimulai…");
+            return;
+          }
+          if (data.gameStarted && !roomGameLaunchStarted) {
+            roomGameLaunchStarted = true;
             document.getElementById("lobby-modal").style.display = "none";
             initEngine(isMobileLayout() ? 1 : 2);
           }
@@ -1737,13 +2253,25 @@
       }
 
       async function toggleReadyStatus() {
-        myReadyStatus = !myReadyStatus;
-        updateReadyButtonUI();
-
-        const roomRef = window.doc(window.db, "rooms", roomId);
-        const updateData = {};
-        updateData[`p${playerRole + 1}_ready`] = myReadyStatus;
-        await window.updateDoc(roomRef, updateData);
+        const nextReady = !myReadyStatus;
+        const roomRef = roomRefCurrent;
+        const button = document.getElementById("btn-ready");
+        button.disabled = true;
+        try {
+          if (nextReady && playerRole === 0) await publishRoomSong();
+          if (nextReady && playerRole === 1 && (!roomSongVersion || !roomSongReadyForPlay)) throw new Error("Menunggu lagu Player 1 selesai diverifikasi dan dimuat.");
+          const updateData = {};
+          updateData[`p${playerRole + 1}_ready`] = nextReady;
+          if (!nextReady) updateData.gameStarted = false;
+          await window.updateDoc(roomRef, updateData);
+          myReadyStatus = nextReady;
+          updateReadyButtonUI();
+        } catch (error) {
+          alert(error.message || "Status room gagal diperbarui. Periksa koneksi dan Firebase Rules.");
+          if (playerRole === 0) setRoomSongStatus("Tautan lagu gagal dibagikan. Pastikan tautan publik dan dapat diakses Player 2.");
+        } finally {
+          button.disabled = false;
+        }
       }
 
       function updateReadyButtonUI() {
@@ -1759,11 +2287,24 @@
       }
 
       function leaveLobby() {
+        if (myReadyStatus && roomRefCurrent) {
+          const updateData = {};
+          updateData[`p${playerRole + 1}_ready`] = false;
+          window.updateDoc(roomRefCurrent, updateData).catch(() => {});
+        }
         if (unsubscribeRoom) unsubscribeRoom();
         if (roomPingTimer) clearInterval(roomPingTimer);
         roomPingTimer = null;
         document.getElementById("lobby-modal").style.display = "none";
         isOnline = false;
+        roomRefCurrent = null;
+        roomSongVersion = "";
+        roomSongReadyForPlay = false;
+        roomGameLaunchStarted = false;
+        ["song-select", "custom-song-file", "difficulty"].forEach((id) => { document.getElementById(id).disabled = false; });
+        customSongSelected = false;
+        customSongReady = false;
+        if (customSongAudio && customSongFile === null) customSongAudio.pause();
       }
 
       /* ==========================================
@@ -1872,6 +2413,7 @@
       }
 
       function initEngine(playerCount) {
+        applyVisualPreferences();
         selectedPlayerCount = playerCount;
         roundFinished = false;
         gamePaused = false;
@@ -2314,6 +2856,7 @@
       window.loadCustomSong = loadCustomSong;
       window.selectBuiltInSong = selectBuiltInSong;
       const hitOffsetControl = document.getElementById("hit-offset");
+      loadVisualPreferences();
       renderKeyBindings();
       renderAchievements();
       hitOffsetControl.value = String(hitOffsetMs);
