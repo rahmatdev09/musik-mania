@@ -186,6 +186,21 @@
         transform: scale(1.08);
         box-shadow: 0 0 25px var(--accent-pink);
       }
+      .game-fullscreen {
+        position: absolute;
+        top: max(16px, env(safe-area-inset-top));
+        right: max(106px, calc(env(safe-area-inset-right) + 90px));
+        z-index: 50;
+        width: 44px;
+        height: 44px;
+        border: 1px solid rgba(0,240,255,.45);
+        border-radius: 50%;
+        color: #fff;
+        background: rgba(0,240,255,.14);
+        font-size: 1.35rem;
+        cursor: pointer;
+        backdrop-filter: blur(12px);
+      }
 
       .input-ui {
         width: 100%;
@@ -719,36 +734,61 @@
         backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
       }
       #game-container { height: 100svh; height: 100dvh; }
+      #game-container { isolation: isolate; }
       .track-container { min-width: 0; }
+      .track-container { width: 100%; }
       .highway { overflow: hidden; }
+      .highway { flex: 1 1 auto; min-height: 0; }
       .board { transform: none; }
       .highway { perspective: none; }
       .target-bar { bottom: max(54px, env(safe-area-inset-bottom)); }
-      .fret-target { touch-action: none; user-select: none; }
+      .fret-target { touch-action: none; user-select: none; -webkit-user-select: none; }
+      #game-container { touch-action: none; overscroll-behavior: none; }
+      #game-container, #game-container * { -webkit-tap-highlight-color: transparent; }
       .note { animation: none; }
       .spark { will-change: transform, opacity; }
       @media (max-width: 700px) {
+        #game-container { width: 100vw; height: 100dvh; min-height: 100dvh; overflow: hidden; }
+        #game-container, #game-container * { touch-action: none; }
+        .stage-background { position: fixed; inset: 0; width: 100vw; height: 100dvh; }
+        .track-container { position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; justify-content: flex-end; padding: 0 10px; }
+        .track-container:has(~ .track-container) { width: 50%; }
+        .highway { width: min(100%, 520px); max-width: none; height: 100%; margin: 0 auto; }
+        .board { inset: 0; width: 100%; height: 100%; border-left-width: 2px; border-right-width: 2px; }
+        .target-bar { left: 0; right: 0; width: 100%; justify-content: space-evenly; gap: 0; padding: 0 2px; }
+        .lane-line { background: rgba(255,255,255,.14); }
+        .band-svg { width: min(58vw, 260px); height: auto; bottom: 17%; opacity: .42; }
+        .equalizer-bar-container { bottom: 15%; height: 80px; }
+        .hud { left: 12px; right: auto; width: calc(100% - 104px); max-width: none; min-height: 44px; align-items: center; overflow: hidden; }
+        .hud > div:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+        .song-progress { top: max(66px, calc(env(safe-area-inset-top) + 54px)); width: calc(100% - 28px); }
+        .btn-exit { z-index: 40; }
+        .feedback { bottom: calc(125px + env(safe-area-inset-bottom)); }
         .brand-title { font-size: clamp(2.4rem, 12vw, 3.5rem); }
         .brand-subtitle { font-size: .68rem; letter-spacing: .36em; margin-bottom: 12px; }
         .card-container { width: min(100%, 390px); }
         .btn-ui { min-height: 50px; padding: 13px 16px; font-size: .83rem; }
         .input-ui { min-height: 48px; font-size: .88rem; }
-        .hud {
-          top: max(12px, env(safe-area-inset-top)); left: 12px; right: 100px;
-          max-width: calc(100% - 124px); gap: 8px; padding: 9px 11px;
-          border-radius: 15px; font-size: .68rem;
-        }
+        .hud { top: max(12px, env(safe-area-inset-top)); left: 12px; right: auto; width: calc(100% - 108px); max-width: none; gap: 6px; padding: 8px 10px; border-radius: 15px; font-size: .65rem; }
         .btn-exit {
           top: max(12px, env(safe-area-inset-top)); right: 12px;
           min-height: 40px; padding: 9px 13px; font-size: .7rem;
         }
+        .game-fullscreen { top: max(12px, env(safe-area-inset-top)); right: 78px; width: 40px; height: 40px; }
         .song-progress { top: max(64px, calc(env(safe-area-inset-top) + 52px)); }
-        .fret-target { width: clamp(42px, 12vw, 54px); height: clamp(42px, 12vw, 54px); font-size: .9rem; }
-        .target-bar { padding: 0 4px; }
+        .fret-target { flex: 0 0 clamp(42px, 12vw, 54px); width: clamp(42px, 12vw, 54px); height: clamp(42px, 12vw, 54px); font-size: .9rem; }
+        .target-bar { padding: 0 2px; bottom: max(42px, env(safe-area-inset-bottom)); }
         .note { width: 38px; height: 38px; }
         .feedback { font-size: clamp(1.5rem, 7vw, 2rem); }
         .player-card-list { gap: 10px; }
         .player-card { padding: 14px 8px; }
+      }
+      @media (max-width: 700px) and (orientation: landscape) {
+        .hud { width: calc(100% - 112px); }
+        .song-progress { top: max(60px, calc(env(safe-area-inset-top) + 48px)); }
+        .fret-target { flex-basis: clamp(38px, 9vh, 50px); width: clamp(38px, 9vh, 50px); height: clamp(38px, 9vh, 50px); }
+        .target-bar { bottom: max(28px, env(safe-area-inset-bottom)); }
+        .band-svg { width: min(35vw, 190px); bottom: 12%; }
       }
       @media (max-height: 700px) {
         #menu { gap: 9px; justify-content: flex-start; }
@@ -946,6 +986,7 @@
 
       <!-- Tombol Keluar Baku & Rapi -->
       <button class="btn-exit" onclick="exitGame()">KELUAR</button>
+      <button class="game-fullscreen" id="game-fullscreen" type="button" aria-label="Masuk layar penuh" title="Layar penuh">⛶</button>
       <div class="song-progress" aria-label="Progres lagu">
         <time id="song-elapsed">0:00</time>
         <div class="song-progress-track"><div class="song-progress-fill" id="song-progress-fill"></div></div>
@@ -1096,6 +1137,8 @@
       let roomPingTimer = null;
       let myOnlineName = "Pemain";
       let bestCombo = 0;
+      let lastMobileTapAt = 0;
+      let activePointerFret = null;
 
       const songs = [
         [
@@ -1644,7 +1687,7 @@
         playerAccuracyStats = players.map(() => ({ spawned: 0, hit: 0, perfect: 0 }));
         bestCombo = 0;
 
-        for (let pIdx = 0; pIdx < playerCount; pIdx++) {
+        for (let pIdx = 0; pIdx < trackCount; pIdx++) {
           for (let kIdx = 0; kIdx < 4; kIdx++) {
             const fret = document.getElementById(`fret-${pIdx}-${kIdx}`);
 
@@ -1654,10 +1697,21 @@
             };
             const endPress = (e) => {
               e.preventDefault();
-              releaseHit(pIdx, kIdx);
+              if (activePointerFret?.pointerId === e.pointerId) {
+                releaseHit(activePointerFret.player, activePointerFret.lane);
+                activePointerFret = null;
+              } else {
+                releaseHit(pIdx, kIdx);
+              }
             };
 
-            fret.addEventListener("pointerdown", startPress);
+            fret.addEventListener("pointerdown", (e) => {
+              startPress(e);
+              if (e.pointerType !== "mouse") {
+                activePointerFret = { pointerId: e.pointerId, player: pIdx, lane: kIdx };
+                try { fret.setPointerCapture(e.pointerId); } catch (_) {}
+              }
+            });
             fret.addEventListener("pointerup", endPress);
             fret.addEventListener("pointercancel", endPress);
             fret.addEventListener("lostpointercapture", endPress);
@@ -1697,7 +1751,42 @@
 
         document.getElementById("game-container").style.display = "none";
         document.getElementById("menu").style.display = "flex";
+        if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
       }
+
+      async function enterGameFullscreen() {
+        const container = document.getElementById("game-container");
+        try {
+          if (document.fullscreenElement) await document.exitFullscreen();
+          else if (container.requestFullscreen) await container.requestFullscreen();
+        } catch (_) {
+          // Fullscreen may require an explicit browser gesture or be unsupported.
+        }
+      }
+
+      document.getElementById("game-fullscreen").addEventListener("click", enterGameFullscreen);
+
+      // Prevent browser double-tap zoom only while the game is visible on touch devices.
+      document.addEventListener("touchend", (event) => {
+        if (!isMobileLayout() || document.getElementById("game-container").style.display !== "flex") return;
+        const now = performance.now();
+        if (now - lastMobileTapAt < 320) event.preventDefault();
+        lastMobileTapAt = now;
+      }, { passive: false });
+
+      // Keep a held lane active as a finger slides between on-screen fret buttons.
+      document.addEventListener("pointermove", (event) => {
+        if (!activePointerFret || event.pointerId !== activePointerFret.pointerId) return;
+        const target = document.elementFromPoint(event.clientX, event.clientY)?.closest(".fret-target");
+        const match = target?.id.match(/^fret-(\d+)-(\d+)$/);
+        if (!match) return;
+        const player = Number(match[1]);
+        const lane = Number(match[2]);
+        if (player === activePointerFret.player && lane === activePointerFret.lane) return;
+        releaseHit(activePointerFret.player, activePointerFret.lane);
+        triggerHit(player, lane);
+        activePointerFret = { ...activePointerFret, player, lane };
+      }, { passive: true });
 
       function spawnBeatNote() {
         if (roundFinished) return;
@@ -1811,6 +1900,7 @@
             rect.top + rect.height / 2,
             colors[keyIndex],
           );
+          if (navigator.vibrate && isMobileLayout()) navigator.vibrate(10);
         }
 
         const p = players[pIdx];
@@ -1940,6 +2030,14 @@
       document.getElementById("hit-offset-value").textContent = `${hitOffsetMs} ms`;
       hitOffsetControl.addEventListener("input", () => {
         document.getElementById("hit-offset-value").textContent = `${hitOffsetControl.value} ms`;
+      });
+
+      window.addEventListener("fullscreenchange", () => {
+        const button = document.getElementById("game-fullscreen");
+        const fullscreen = Boolean(document.fullscreenElement);
+        button.textContent = fullscreen ? "⛶" : "⛶";
+        button.setAttribute("aria-label", fullscreen ? "Keluar layar penuh" : "Masuk layar penuh");
+        button.title = fullscreen ? "Keluar layar penuh" : "Layar penuh";
       });
       hitOffsetControl.addEventListener("change", () => {
         hitOffsetMs = Number(hitOffsetControl.value) || 0;
