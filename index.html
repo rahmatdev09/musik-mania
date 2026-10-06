@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>Musik Mania - Ultimate Animation Edition</title>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #040209;
+        --accent-pink: #ff0055;
+        --accent-cyan: #00f0ff;
+        --accent-yellow: #ffcc00;
+        --accent-green: #00ff66;
+        --accent-purple: #8a2be2;
+        --glass: rgba(255, 255, 255, 0.04);
+        --glass-border: rgba(255, 255, 255, 0.1);
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        user-select: none;
+        -webkit-user-select: none;
+        font-family: "Plus Jakarta Sans", sans-serif;
+      }
+      body {
+        background: var(--bg);
+        color: #fff;
+        overflow: hidden;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* MENU UTAMA ELEGAN & DYNAMIK */
+      #menu,
+      #settings-modal {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        gap: 18px;
+        background: radial-gradient(circle at 50% 30%, #1a0836 0%, #05020c 80%);
+        position: relative;
+        z-index: 100;
+        overflow: hidden;
+      }
+
+      /* PARTIKEL LATAR BELAKANG MENU */
+      .bg-particles {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      .brand-title {
+        font-size: 4rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: -1px;
+        text-align: center;
+        background: linear-gradient(
+          135deg,
+          #ffffff 20%,
+          var(--accent-cyan) 60%,
+          var(--accent-pink) 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 0 25px rgba(0, 240, 255, 0.4));
+        animation: titlePulse 2s infinite alternate ease-in-out;
+        z-index: 2;
+      }
+
+      @keyframes titlePulse {
+        0% {
+          transform: scale(1);
+          filter: drop-shadow(0 0 20px rgba(0, 240, 255, 0.4));
+        }
+        100% {
+          transform: scale(1.03);
+          filter: drop-shadow(0 0 40px rgba(255, 0, 85, 0.7));
+        }
+      }
+
+      .brand-subtitle {
+        font-size: 0.9rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 8px;
+        color: rgba(255, 255, 255, 0.6);
+        margin-top: -15px;
+        margin-bottom: 20px;
+        z-index: 2;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+      }
+
+      .card-container {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        width: 100%;
+        max-width: 320px;
+        z-index: 2;
+      }
+
+      .btn-ui {
+        width: 100%;
+        padding: 16px 24px;
+        font-size: 0.95rem;
+        font-weight: 800;
+        border-radius: 16px;
+        border: 1px solid var(--glass-border);
+        background: var(--glass);
+        color: #fff;
+        cursor: pointer;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      }
+      .btn-ui:hover {
+        background: rgba(255, 255, 255, 0.12);
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 10px 30px rgba(0, 240, 255, 0.3);
+      }
+      .btn-primary {
+        background: linear-gradient(
+          135deg,
+          var(--accent-pink),
+          var(--accent-purple)
+        );
+        border: none;
+        box-shadow: 0 8px 25px rgba(255, 0, 85, 0.4);
+      }
+      .btn-primary:hover {
+        box-shadow: 0 12px 35px rgba(255, 0, 85, 0.7);
+      }
+
+      .btn-exit {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 50;
+        padding: 12px 24px;
+        border-radius: 30px;
+        border: 1px solid rgba(255, 0, 85, 0.5);
+        background: rgba(255, 0, 85, 0.2);
+        color: #fff;
+        font-size: 0.85rem;
+        font-weight: 800;
+        cursor: pointer;
+        backdrop-filter: blur(12px);
+        transition: all 0.2s ease;
+        letter-spacing: 1px;
+        box-shadow: 0 0 15px rgba(255, 0, 85, 0.3);
+      }
+      .btn-exit:hover {
+        background: var(--accent-pink);
+        transform: scale(1.08);
+        box-shadow: 0 0 25px var(--accent-pink);
+      }
+
+      .input-ui {
+        width: 100%;
+        padding: 14px 20px;
+        border-radius: 16px;
+        border: 1px solid var(--glass-border);
+        background: rgba(0, 0, 0, 0.5);
+        color: #fff;
+        text-align: center;
+        font-size: 0.95rem;
+        outline: none;
+        transition: all 0.2s ease;
+        font-weight: 700;
+      }
+      .input-ui:focus {
+        border-color: var(--accent-cyan);
+        box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+      }
+
+      #settings-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        display: none;
+        background: rgba(4, 2, 9, 0.95);
+        backdrop-filter: blur(20px);
+      }
+      .setting-row {
+        display: flex;
+        justify-content: space-between;
+        width: 300px;
+        align-items: center;
+        font-weight: 700;
+      }
+
+      #game-container {
+        display: none;
+        flex: 1;
+        width: 100%;
+        height: 100%;
+        position: relative;
+        background: #000;
+        overflow: hidden;
+      }
+
+      /* BACKGROUND PANGGUNG DENGAN EFEK PETIR & LIGHTING */
+      .stage-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at 50% 20%, #1e093d 0%, #030108 85%);
+        pointer-events: none;
+        z-index: 1;
+        transition: background 0.1s;
+      }
+
+      .stage-flash {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+          circle at 50% 50%,
+          rgba(0, 240, 255, 0.15),
+          transparent 70%
+        );
+        opacity: 0;
+        pointer-events: none;
+        z-index: 2;
+        transition: opacity 0.08s ease-out;
+      }
+
+      /* EQUALIZER AUDIO DRAMATIS DI PANGGUNG */
+      .equalizer-bar-container {
+        position: absolute;
+        bottom: 15%;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 5%;
+        height: 120px;
+        opacity: 0.25;
+        z-index: 1;
+        pointer-events: none;
+      }
+      .eq-bar {
+        width: 12px;
+        background: linear-gradient(
+          to top,
+          var(--accent-purple),
+          var(--accent-cyan)
+        );
+        border-radius: 10px;
+        height: 20%;
+        transition: height 0.08s ease;
+      }
+
+      .spotlight {
+        position: absolute;
+        top: -20%;
+        width: 320px;
+        height: 140%;
+        background: linear-gradient(
+          180deg,
+          rgba(0, 240, 255, 0.25) 0%,
+          rgba(0, 0, 0, 0) 100%
+        );
+        clip-path: polygon(45% 0%, 55% 0%, 100% 100%, 0% 100%);
+        animation: swing 3.5s ease-in-out infinite alternate;
+        transform-origin: top center;
+      }
+      .spotlight-2 {
+        right: 10%;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 0, 85, 0.25) 0%,
+          rgba(0, 0, 0, 0) 100%
+        );
+        animation-delay: -1.75s;
+      }
+
+      @keyframes swing {
+        0% {
+          transform: rotate(-18deg);
+        }
+        100% {
+          transform: rotate(18deg);
+        }
+      }
+
+      /* BAND SVG ANIMASI ROCKER KAYA EFEK */
+      .band-svg {
+        position: absolute;
+        bottom: 20%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 300px;
+        height: 160px;
+        z-index: 2;
+        opacity: 0.9;
+        filter: drop-shadow(0 0 20px rgba(138, 43, 226, 0.6));
+      }
+      .vocalist-anim {
+        animation: rockSync 0.4s ease-in-out infinite alternate;
+        transform-origin: bottom center;
+      }
+      .guitarist-anim {
+        animation: rockSync 0.32s ease-in-out infinite alternate-reverse;
+        transform-origin: bottom center;
+      }
+      .drummer-anim {
+        animation: drumBeat 0.2s ease-in-out infinite alternate;
+        transform-origin: center;
+      }
+
+      @keyframes rockSync {
+        0% {
+          transform: translateY(0) rotate(-1deg);
+        }
+        100% {
+          transform: translateY(-10px) rotate(2deg);
+        }
+      }
+      @keyframes drumBeat {
+        0% {
+          transform: scale(1);
+        }
+        100% {
+          transform: scale(1.05);
+        }
+      }
+
+      /* TRACK & HIGHWAY (3D PERSPEKTIF PRESISI) */
+      .track-container {
+        flex: 1;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-end;
+        z-index: 10;
+      }
+
+      .highway {
+        width: 100%;
+        max-width: 440px;
+        height: 100%;
+        position: relative;
+        perspective: 450px;
+      }
+      .board {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        transform: rotateX(48deg);
+        transform-origin: bottom center;
+        background: linear-gradient(
+          to bottom,
+          rgba(15, 5, 30, 0.2) 0%,
+          rgba(25, 10, 45, 0.9) 100%
+        );
+        border-left: 3px solid rgba(0, 240, 255, 0.6);
+        border-right: 3px solid rgba(255, 0, 85, 0.6);
+        box-shadow: 0 0 35px rgba(0, 240, 255, 0.25);
+      }
+
+      .lane-line {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .line-0 {
+        left: 25%;
+      }
+      .line-1 {
+        left: 50%;
+      }
+      .line-2 {
+        left: 75%;
+      }
+
+      .target-bar {
+        position: absolute;
+        bottom: 80px;
+        width: 100%;
+        height: 70px;
+        display: flex;
+        justify-content: space-around;
+        padding: 0 10px;
+        z-index: 10;
+      }
+      .fret-target {
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        border: 3px solid rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        font-weight: 900;
+        color: #fff;
+        backdrop-filter: blur(6px);
+        transition: transform 0.05s ease-out;
+      }
+      .fret-0 {
+        border-color: var(--accent-green);
+        box-shadow:
+          0 0 18px rgba(0, 255, 102, 0.5),
+          inset 0 0 10px rgba(0, 255, 102, 0.3);
+      }
+      .fret-1 {
+        border-color: var(--accent-pink);
+        box-shadow:
+          0 0 18px rgba(255, 0, 85, 0.5),
+          inset 0 0 10px rgba(255, 0, 85, 0.3);
+      }
+      .fret-2 {
+        border-color: var(--accent-yellow);
+        box-shadow:
+          0 0 18px rgba(255, 204, 0, 0.5),
+          inset 0 0 10px rgba(255, 204, 0, 0.3);
+      }
+      .fret-3 {
+        border-color: var(--accent-cyan);
+        box-shadow:
+          0 0 18px rgba(0, 240, 255, 0.5),
+          inset 0 0 10px rgba(0, 240, 255, 0.3);
+      }
+      .fret-target.active {
+        transform: scale(0.85);
+        filter: brightness(1.8);
+      }
+
+      /* EFEK LEDAKAN PARTIKEL SAAT HIT */
+      .spark {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 15;
+        animation: sparkFly 0.35s ease-out forwards;
+      }
+      @keyframes sparkFly {
+        0% {
+          opacity: 1;
+          transform: translate(0, 0) scale(1);
+        }
+        100% {
+          opacity: 0;
+          transform: translate(var(--dx), var(--dy)) scale(0.2);
+        }
+      }
+
+      /* NOTES DENGAN EFEK GLOW MEMUKAU */
+      .note {
+        position: absolute;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        top: -50px;
+        transform: translateX(-50%);
+        border: 3px solid #fff;
+        z-index: 5;
+        will-change: transform, top;
+        animation: noteGlow 0.5s infinite alternate;
+      }
+
+      @keyframes noteGlow {
+        0% {
+          filter: brightness(1);
+        }
+        100% {
+          filter: brightness(1.4);
+        }
+      }
+
+      .note-tail {
+        position: absolute;
+        width: 14px;
+        transform: translateX(-50%);
+        top: 0;
+        left: 50%;
+        z-index: -1;
+        border-radius: 6px;
+        opacity: 0.85;
+      }
+
+      .note[data-key="0"],
+      .note-tail[data-key="0"] {
+        background: radial-gradient(circle, var(--accent-green) 30%, #000 100%);
+        color: var(--accent-green);
+        box-shadow: 0 0 20px var(--accent-green);
+      }
+      .note[data-key="1"],
+      .note-tail[data-key="1"] {
+        background: radial-gradient(circle, var(--accent-pink) 30%, #000 100%);
+        color: var(--accent-pink);
+        box-shadow: 0 0 20px var(--accent-pink);
+      }
+      .note[data-key="2"],
+      .note-tail[data-key="2"] {
+        background: radial-gradient(
+          circle,
+          var(--accent-yellow) 30%,
+          #000 100%
+        );
+        color: var(--accent-yellow);
+        box-shadow: 0 0 20px var(--accent-yellow);
+      }
+      .note[data-key="3"],
+      .note-tail[data-key="3"] {
+        background: radial-gradient(circle, var(--accent-cyan) 30%, #000 100%);
+        color: var(--accent-cyan);
+        box-shadow: 0 0 20px var(--accent-cyan);
+      }
+
+      .hud {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        display: flex;
+        gap: 15px;
+        font-size: 0.85rem;
+        z-index: 20;
+        font-weight: 800;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 10px 20px;
+        border-radius: 20px;
+        backdrop-filter: blur(12px);
+        border: 1px solid var(--glass-border);
+      }
+      .ping-badge {
+        color: var(--accent-cyan);
+      }
+
+      .feedback {
+        position: absolute;
+        bottom: 170px;
+        width: 100%;
+        text-align: center;
+        font-size: 2.2rem;
+        font-weight: 900;
+        z-index: 20;
+        pointer-events: none;
+        opacity: 0;
+        transform: scale(0.5);
+        transition: all 0.12s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        text-shadow: 0 0 15px currentColor;
+      }
+      .feedback.show {
+        opacity: 1;
+        transform: scale(1.15);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- MENU UTAMA -->
+    <div id="menu">
+      <canvas class="bg-particles" id="menu-canvas"></canvas>
+      <div class="brand-title">Musik Mania</div>
+      <div class="brand-subtitle">Ultimate Beat Experience</div>
+
+      <div class="card-container">
+        <select id="song-select" class="input-ui">
+          <option value="0">🎵 Song 1: Cyberpunk Rush (Energetik)</option>
+          <option value="1">🎵 Song 2: Neon Synthwave (Medium)</option>
+          <option value="2">🎵 Song 3: Speed Metal (Fast/Hard)</option>
+        </select>
+
+        <select id="difficulty" class="input-ui">
+          <option value="easy">EASY</option>
+          <option value="medium" selected>MEDIUM</option>
+          <option value="hard">HARD</option>
+        </select>
+
+        <button class="btn-ui btn-primary" onclick="startGame(1)">
+          SINGLE PLAYER
+        </button>
+        <button class="btn-ui" onclick="startGame(2)">SPLIT SCREEN (2P)</button>
+
+        <input
+          type="text"
+          id="room-id"
+          class="input-ui"
+          placeholder="Kode Room Online"
+        />
+        <button class="btn-ui" onclick="startOnline()">MAIN ONLINE</button>
+        <button
+          class="btn-ui"
+          style="background: rgba(255, 255, 255, 0.02)"
+          onclick="toggleSettings(true)"
+        >
+          PENGATURAN
+        </button>
+      </div>
+    </div>
+
+    <!-- MODAL PENGATURAN -->
+    <div id="settings-modal">
+      <h2 style="font-weight: 900; letter-spacing: 1px; margin-bottom: 10px">
+        PENGATURAN
+      </h2>
+      <div class="setting-row">
+        <span>Kecepatan Note:</span>
+        <select id="speed-setting" class="input-ui" style="width: 110px">
+          <option value="6">Lambat</option>
+          <option value="9" selected>Normal</option>
+          <option value="13">Cepat</option>
+        </select>
+      </div>
+      <div class="setting-row" style="margin-top: 15px">
+        <span>Volume Musik:</span>
+        <input
+          type="range"
+          id="volume-setting"
+          min="0"
+          max="1"
+          step="0.1"
+          value="0.4"
+        />
+      </div>
+      <button
+        class="btn-ui btn-primary"
+        style="width: 300px; margin-top: 30px"
+        onclick="toggleSettings(false)"
+      >
+        SIMPAN & KEMBALI
+      </button>
+    </div>
+
+    <!-- GAMEPLAY STAGE -->
+    <div id="game-container">
+      <div class="stage-background" id="stage-bg">
+        <div class="stage-flash" id="stage-flash"></div>
+
+        <!-- EQUALIZER BAR ANIMATION -->
+        <div class="equalizer-bar-container" id="eq-container">
+          <!-- Bars diisi otomatis lewat JS -->
+        </div>
+
+        <div class="spotlight spotlight-1"></div>
+        <div class="spotlight spotlight-2"></div>
+
+        <!-- BAND ANIMATION -->
+        <svg class="band-svg" viewBox="0 0 300 150">
+          <!-- Drummer -->
+          <g class="drummer-anim">
+            <circle cx="150" cy="40" r="10" fill="var(--accent-yellow)" />
+            <path
+              d="M140 52 L160 52 L155 90 L145 90 Z"
+              fill="var(--accent-yellow)"
+            />
+            <ellipse
+              cx="150"
+              cy="95"
+              rx="25"
+              ry="15"
+              fill="rgba(255,255,255,0.2)"
+              stroke="#fff"
+              stroke-width="2"
+            />
+          </g>
+          <!-- Vokalis -->
+          <g class="vocalist-anim">
+            <circle cx="90" cy="45" r="12" fill="var(--accent-cyan)" />
+            <path
+              d="M82 61 L98 61 L94 120 L86 120 Z"
+              fill="var(--accent-cyan)"
+            />
+            <path
+              d="M78 67 L65 50"
+              stroke="var(--accent-pink)"
+              stroke-width="4"
+              stroke-linecap="round"
+            />
+          </g>
+          <!-- Gitaris -->
+          <g class="guitarist-anim">
+            <circle cx="210" cy="50" r="12" fill="var(--accent-pink)" />
+            <path
+              d="M202 66 L218 66 L214 125 L206 125 Z"
+              fill="var(--accent-pink)"
+            />
+            <path
+              d="M180 83 L240 65"
+              stroke="var(--accent-yellow)"
+              stroke-width="5"
+              stroke-linecap="round"
+            />
+          </g>
+        </svg>
+      </div>
+
+      <!-- Tombol Keluar Baku & Rapi -->
+      <button class="btn-exit" onclick="exitGame()">KELUAR</button>
+    </div>
+
+    <!-- SDK FIREBASE ESM CDN VIA TYPE MODULE -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+      import {
+        getFirestore,
+        doc,
+        setDoc,
+        getDoc,
+        onSnapshot,
+        updateDoc,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyDFi0WfRV6DQNGXSU4dkvw9QfegKbOGEok",
+        authDomain: "musik-mania.firebaseapp.com",
+        projectId: "musik-mania",
+        storageBucket: "musik-mania.firebasestorage.app",
+        messagingSenderId: "675453324070",
+        appId: "1:675453324070:web:0c353269fdcf7be7038fe7",
+        measurementId: "G-N00BFSN2DV",
+      };
+
+      const app = initializeApp(firebaseConfig);
+      const db = getFirestore(app);
+
+      // DEKLARASI GLOBAL
+      window.db = db;
+      window.doc = doc;
+      window.setDoc = setDoc;
+      window.getDoc = getDoc;
+      window.onSnapshot = onSnapshot;
+      window.updateDoc = updateDoc;
+    </script>
+
+    <script>
+      /* ==========================================
+       PARTIKEL BACKGROUND MENU UTAMA
+       ========================================== */
+      const canvas = document.getElementById("menu-canvas");
+      const ctx = canvas.getContext("2d");
+      let particles = [];
+
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      window.addEventListener("resize", resizeCanvas);
+      resizeCanvas();
+
+      for (let i = 0; i < 40; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 3 + 1,
+          color: ["#00f0ff", "#ff0055", "#7900ff"][
+            Math.floor(Math.random() * 3)
+          ],
+          speedY: Math.random() * 1.5 + 0.5,
+          speedX: Math.random() * 1 - 0.5,
+        });
+      }
+
+      function animateMenuBg() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach((p) => {
+          p.y -= p.speedY;
+          p.x += p.speedX;
+          if (p.y < 0) p.y = canvas.height;
+          if (p.x < 0 || p.x > canvas.width) p.speedX *= -1;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = p.color;
+          ctx.fill();
+        });
+        requestAnimationFrame(animateMenuBg);
+      }
+      animateMenuBg();
+
+      /* ==========================================
+       AUDIO ENGINE & CHIP TUNE SONGS GENERATOR
+       ========================================== */
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const laneFreqs = [261.63, 329.63, 392.0, 523.25]; // C4, E4, G4, C5
+      let songVolume = 0.4;
+      let songNoteTimer = null;
+      let songNoteStep = 0;
+
+      // DATA MELODI LAGU SYNTHESIS SUNGGUHAN
+      const songs = [
+        // Song 1: Cyberpunk Rush
+        [
+          261.63, 329.63, 392.0, 523.25, 392.0, 329.63, 523.25, 659.25, 523.25,
+          392.0, 329.63, 261.63,
+        ],
+        // Song 2: Neon Synthwave
+        [
+          329.63, 329.63, 392.0, 440.0, 392.0, 329.63, 293.66, 329.63, 392.0,
+          523.25, 440.0, 392.0,
+        ],
+        // Song 3: Speed Metal
+        [
+          523.25, 587.33, 659.25, 523.25, 659.25, 783.99, 659.25, 523.25, 440.0,
+          523.25, 659.25, 783.99,
+        ],
+      ];
+
+      function playSound(freq, duration = 0.2, type = "sawtooth") {
+        if (audioCtx.state === "suspended") audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(songVolume, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(
+          0.001,
+          audioCtx.currentTime + duration,
+        );
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      }
+
+      function startSongMusic() {
+        const songIdx = parseInt(document.getElementById("song-select").value);
+        const songNotes = songs[songIdx];
+        songNoteStep = 0;
+
+        if (songNoteTimer) clearInterval(songNoteTimer);
+        songNoteTimer = setInterval(() => {
+          const freq = songNotes[songNoteStep % songNotes.length];
+          playSound(freq, 0.25, "triangle");
+          animateStageEq();
+          songNoteStep++;
+        }, 250);
+      }
+
+      function stopSongMusic() {
+        if (songNoteTimer) clearInterval(songNoteTimer);
+      }
+
+      /* ==========================================
+       ANIMASI EQUALIZER & LIGHTING PANGGUNG
+       ========================================== */
+      const eqContainer = document.getElementById("eq-container");
+      for (let i = 0; i < 24; i++) {
+        const bar = document.createElement("div");
+        bar.className = "eq-bar";
+        eqContainer.appendChild(bar);
+      }
+
+      function animateStageEq() {
+        const bars = document.querySelectorAll(".eq-bar");
+        bars.forEach((b) => {
+          const h = Math.floor(Math.random() * 85) + 15;
+          b.style.height = h + "%";
+        });
+      }
+
+      function triggerSparkEffect(x, y, color) {
+        for (let i = 0; i < 12; i++) {
+          const spark = document.createElement("div");
+          spark.className = "spark";
+          spark.style.backgroundColor = color;
+          spark.style.boxShadow = `0 0 10px ${color}`;
+          spark.style.left = x + "px";
+          spark.style.top = y + "px";
+
+          const angle = Math.random() * Math.PI * 2;
+          const dist = Math.random() * 60 + 20;
+          spark.style.setProperty("--dx", `${Math.cos(angle) * dist}px`);
+          spark.style.setProperty("--dy", `${Math.sin(angle) * dist}px`);
+
+          document.getElementById("game-container").appendChild(spark);
+          setTimeout(() => spark.remove(), 350);
+        }
+
+        // Flash Kilatan Panggung
+        const flash = document.getElementById("stage-flash");
+        flash.style.opacity = "1";
+        setTimeout(() => (flash.style.opacity = "0"), 80);
+      }
+
+      /* ==========================================
+       GAME ENGINE & STATE MANAGEMENT
+       ========================================== */
+      let gameLoopId, songIntervalId;
+      let players = [];
+      let isOnline = false,
+        roomId = null,
+        playerRole = 0;
+      let noteSpeed = 9;
+      let activeHolds = {};
+      let lastFrameTime = performance.now();
+
+      const keyMappings = [
+        {
+          keys: ["ArrowLeft", "ArrowUp", "ArrowDown", "ArrowRight"],
+          labels: ["←", "↑", "↓", "→"],
+        },
+        { keys: ["a", "w", "s", "d"], labels: ["A", "W", "S", "D"] },
+      ];
+      const laneXPositions = [12.5, 37.5, 62.5, 87.5];
+
+      function showFeedback(pIdx, text, color) {
+        const fb = document.getElementById(`feedback-${pIdx}`);
+        if (!fb) return;
+        fb.innerText = text;
+        fb.style.color = color;
+        fb.classList.add("show");
+        setTimeout(() => fb.classList.remove("show"), 160);
+      }
+
+      function toggleSettings(show) {
+        document.getElementById("settings-modal").style.display = show
+          ? "flex"
+          : "none";
+        if (!show) {
+          noteSpeed = parseInt(document.getElementById("speed-setting").value);
+          songVolume = parseFloat(
+            document.getElementById("volume-setting").value,
+          );
+        }
+      }
+
+      function createTrackHTML(pIdx, label) {
+        return `
+        <div class="track-container" id="track-${pIdx}">
+          <div class="hud">
+            <div>${label} &nbsp;|&nbsp; SKOR: <span id="score-${pIdx}">0</span> &nbsp;|&nbsp; COMBO: <span id="combo-${pIdx}">0</span></div>
+            <div class="ping-badge"><span id="ping-${pIdx}">18</span>ms</div>
+          </div>
+          <div class="feedback" id="feedback-${pIdx}">PERFECT!</div>
+          <div class="highway">
+            <div class="board" id="board-${pIdx}">
+              <div class="lane-line line-0"></div>
+              <div class="lane-line line-1"></div>
+              <div class="lane-line line-2"></div>
+            </div>
+            <div class="target-bar">
+              ${[0, 1, 2, 3]
+                .map(
+                  (i) => `
+                <div class="fret-target fret-${i}" id="fret-${pIdx}-${i}">
+                  ${keyMappings[pIdx % 2].labels[i]}
+                </div>
+              `,
+                )
+                .join("")}
+            </div>
+          </div>
+        </div>
+      `;
+      }
+
+      function startGame(playerCount) {
+        isOnline = false;
+        initEngine(playerCount);
+      }
+
+      async function startOnline() {
+        const roomInput = document.getElementById("room-id").value.trim();
+        if (!roomInput) return alert("Masukkan Kode Room!");
+        if (!window.db) return alert("Firestore belum siap!");
+
+        isOnline = true;
+        roomId = roomInput;
+        const roomRef = window.doc(window.db, "rooms", roomId);
+
+        const docSnap = await window.getDoc(roomRef);
+        playerRole = docSnap.exists() ? 1 : 0;
+
+        if (playerRole === 0) {
+          await window.setDoc(roomRef, { p1_score: 0, p2_score: 0 });
+        }
+
+        initEngine(2);
+
+        window.onSnapshot(roomRef, (snapshot) => {
+          const data = snapshot.data();
+          if (data) {
+            const oppRole = playerRole === 0 ? 1 : 0;
+            const oppScoreEl = document.getElementById(`score-${oppRole}`);
+            if (oppScoreEl)
+              oppScoreEl.innerText = data[`p${oppRole + 1}_score`] || 0;
+          }
+        });
+      }
+
+      function initEngine(playerCount) {
+        document.getElementById("menu").style.display = "none";
+        const container = document.getElementById("game-container");
+        container.style.display = "flex";
+
+        const existingTracks = container.querySelectorAll(".track-container");
+        existingTracks.forEach((t) => t.remove());
+
+        players = [];
+        for (let i = 0; i < playerCount; i++) {
+          container.innerHTML += createTrackHTML(i, `P${i + 1}`);
+          players.push({ score: 0, combo: 0, notes: [] });
+        }
+
+        for (let pIdx = 0; pIdx < playerCount; pIdx++) {
+          for (let kIdx = 0; kIdx < 4; kIdx++) {
+            const fret = document.getElementById(`fret-${pIdx}-${kIdx}`);
+
+            const startPress = (e) => {
+              e.preventDefault();
+              triggerHit(pIdx, kIdx);
+            };
+            const endPress = (e) => {
+              e.preventDefault();
+              releaseHit(pIdx, kIdx);
+            };
+
+            fret.addEventListener("touchstart", startPress);
+            fret.addEventListener("touchend", endPress);
+            fret.addEventListener("mousedown", startPress);
+            fret.addEventListener("mouseup", endPress);
+          }
+        }
+
+        const diff = document.getElementById("difficulty").value;
+        const beatInterval =
+          diff === "easy" ? 750 : diff === "medium" ? 500 : 280;
+
+        startSongMusic();
+
+        lastFrameTime = performance.now();
+        gameLoopId = requestAnimationFrame(updateEngine);
+        songIntervalId = setInterval(spawnBeatNote, beatInterval);
+      }
+
+      function exitGame() {
+        cancelAnimationFrame(gameLoopId);
+        clearInterval(songIntervalId);
+        stopSongMusic();
+
+        document.getElementById("game-container").style.display = "none";
+        document.getElementById("menu").style.display = "flex";
+      }
+
+      function spawnBeatNote() {
+        const keyIndex = Math.floor(Math.random() * 4);
+        const isHold = Math.random() < 0.25;
+        const holdLength = isHold ? Math.floor(Math.random() * 100) + 80 : 0;
+
+        players.forEach((p, pIdx) => {
+          if (isOnline && pIdx !== playerRole) return;
+
+          const board = document.getElementById(`board-${pIdx}`);
+          if (!board) return;
+
+          const noteEl = document.createElement("div");
+          noteEl.className = "note";
+          noteEl.setAttribute("data-key", keyIndex);
+          noteEl.style.left = laneXPositions[keyIndex] + "%";
+
+          if (isHold) {
+            const tailEl = document.createElement("div");
+            tailEl.className = "note-tail";
+            tailEl.setAttribute("data-key", keyIndex);
+            tailEl.style.height = holdLength + "px";
+            tailEl.style.top = -holdLength + "px";
+            noteEl.appendChild(tailEl);
+          }
+
+          board.appendChild(noteEl);
+          p.notes.push({
+            el: noteEl,
+            key: keyIndex,
+            top: -50,
+            isHold,
+            holdLength,
+            holding: false,
+            hit: false,
+          });
+        });
+      }
+
+      function updateEngine(now) {
+        const delta = (now - lastFrameTime) / 16.66;
+        lastFrameTime = now;
+
+        const boardHeight =
+          document.querySelector(".board")?.clientHeight || 600;
+        const targetY = boardHeight - 90;
+
+        players.forEach((p, pIdx) => {
+          for (let i = p.notes.length - 1; i >= 0; i--) {
+            const n = p.notes[i];
+            n.top += noteSpeed * delta;
+            n.el.style.top = n.top + "px";
+
+            if (n.holding) {
+              n.holdLength -= noteSpeed * delta;
+              p.score += 2;
+              document.getElementById(`score-${pIdx}`).innerText = p.score;
+              playSound(laneFreqs[n.key], 0.08);
+
+              const tail = n.el.querySelector(".note-tail");
+              if (tail) tail.style.height = Math.max(0, n.holdLength) + "px";
+
+              if (n.holdLength <= 0) {
+                showFeedback(pIdx, "PERFECT HOLD!", "var(--accent-green)");
+                n.el.remove();
+                p.notes.splice(i, 1);
+                continue;
+              }
+            }
+
+            if (n.top > targetY + 60 + n.holdLength && !n.hit && !n.holding) {
+              showFeedback(pIdx, "MISS!", "var(--accent-pink)");
+              p.combo = 0;
+              document.getElementById(`combo-${pIdx}`).innerText = p.combo;
+              n.el.remove();
+              p.notes.splice(i, 1);
+            }
+          }
+        });
+
+        gameLoopId = requestAnimationFrame(updateEngine);
+      }
+
+      function triggerHit(pIdx, keyIndex) {
+        playSound(laneFreqs[keyIndex], 0.2);
+        activeHolds[`${pIdx}-${keyIndex}`] = true;
+
+        const fret = document.getElementById(`fret-${pIdx}-${keyIndex}`);
+        if (fret) {
+          fret.classList.add("active");
+          const rect = fret.getBoundingClientRect();
+          const colors = ["#00ff66", "#ff0055", "#ffcc00", "#00f0ff"];
+          triggerSparkEffect(
+            rect.left + rect.width / 2,
+            rect.top + rect.height / 2,
+            colors[keyIndex],
+          );
+        }
+
+        const p = players[pIdx];
+        if (!p) return;
+
+        const boardHeight =
+          document.querySelector(".board")?.clientHeight || 600;
+        const targetY = boardHeight - 90;
+        let closestIdx = -1;
+        let minDistance = Infinity;
+
+        p.notes.forEach((n, idx) => {
+          if (n.key === keyIndex && !n.hit && !n.holding) {
+            const dist = Math.abs(n.top - targetY);
+            if (dist < minDistance) {
+              minDistance = dist;
+              closestIdx = idx;
+            }
+          }
+        });
+
+        if (closestIdx !== -1 && minDistance < 65) {
+          const note = p.notes[closestIdx];
+
+          if (note.isHold) {
+            note.holding = true;
+            showFeedback(pIdx, "HOLD!", "var(--accent-yellow)");
+          } else {
+            note.hit = true;
+            note.el.remove();
+            p.notes.splice(closestIdx, 1);
+
+            let points = minDistance < 22 ? 100 : minDistance < 45 ? 70 : 40;
+            showFeedback(
+              pIdx,
+              minDistance < 22 ? "PERFECT!" : "GREAT!",
+              "var(--accent-green)",
+            );
+
+            p.combo++;
+            p.score += points + p.combo * 5;
+            document.getElementById(`score-${pIdx}`).innerText = p.score;
+            document.getElementById(`combo-${pIdx}`).innerText = p.combo;
+          }
+
+          if (isOnline && pIdx === playerRole) {
+            const roomRef = window.doc(window.db, "rooms", roomId);
+            const updateData = {};
+            updateData[`p${playerRole + 1}_score`] = p.score;
+            window.updateDoc(roomRef, updateData);
+          }
+        }
+      }
+
+      function releaseHit(pIdx, keyIndex) {
+        activeHolds[`${pIdx}-${keyIndex}`] = false;
+
+        const fret = document.getElementById(`fret-${pIdx}-${keyIndex}`);
+        if (fret) fret.classList.remove("active");
+
+        const p = players[pIdx];
+        if (!p) return;
+
+        p.notes.forEach((n) => {
+          if (n.key === keyIndex && n.holding) {
+            n.holding = false;
+            n.hit = true;
+            showFeedback(pIdx, "DROPPED!", "var(--accent-pink)");
+          }
+        });
+      }
+
+      window.addEventListener("keydown", (e) => {
+        keyMappings.forEach((map, pIdx) => {
+          const keyIdx = map.keys.indexOf(e.key);
+          if (keyIdx !== -1 && !activeHolds[`${pIdx}-${keyIdx}`]) {
+            triggerHit(pIdx, keyIdx);
+          }
+        });
+      });
+
+      window.addEventListener("keyup", (e) => {
+        keyMappings.forEach((map, pIdx) => {
+          const keyIdx = map.keys.indexOf(e.key);
+          if (keyIdx !== -1) {
+            releaseHit(pIdx, keyIdx);
+          }
+        });
+      });
+
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("sw.js")
+            .catch((err) => console.log(err));
+        });
+      }
+
+      // Expose fungsi ke scope global HTML onclick
+      window.startGame = startGame;
+      window.startOnline = startOnline;
+      window.exitGame = exitGame;
+      window.toggleSettings = toggleSettings;
+    </script>
+  </body>
+</html>
