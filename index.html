@@ -678,6 +678,11 @@
       .song-progress-track { height: 6px; flex: 1; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.14); }
       .song-progress-fill { width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg,var(--accent-cyan),var(--accent-pink)); box-shadow: 0 0 14px rgba(0,240,255,.55); transition: width .12s linear; }
       .song-progress-fill { will-change: width; }
+      .game-audio-controls { position:absolute; z-index:35; top:max(108px,calc(env(safe-area-inset-top) + 94px)); left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:9px; padding:7px 10px; border:1px solid rgba(255,255,255,.12); border-radius:14px; background:rgba(5,3,12,.68); backdrop-filter:blur(12px); }
+      .game-audio-controls button { min-width:38px; min-height:32px; padding:5px 9px; border:1px solid rgba(255,255,255,.16); border-radius:10px; color:#fff; background:rgba(255,255,255,.08); font-size:.7rem; font-weight:900; }
+      .game-audio-controls input { width:90px; accent-color:var(--accent-cyan); }
+      #game-container.is-paused .track-container { filter:brightness(.55); }
+      #game-container.is-paused::after { content:"DIJEDA"; position:absolute; z-index:34; top:50%; left:50%; transform:translate(-50%,-50%); padding:12px 22px; border:1px solid rgba(0,240,255,.45); border-radius:16px; background:rgba(4,2,9,.72); color:var(--accent-cyan); font-size:1.5rem; font-weight:900; letter-spacing:.12em; pointer-events:none; }
       .track-container, .highway, .board { contain: layout paint; }
       .note { backface-visibility: hidden; transform: translate3d(-50%,0,0); }
       .online-rival { display: block; margin-top: 4px; color: rgba(255,255,255,.7); font-size: .72em; white-space: nowrap; }
@@ -776,8 +781,9 @@
         }
         .game-fullscreen { top: max(12px, env(safe-area-inset-top)); right: 78px; width: 40px; height: 40px; }
         .song-progress { top: max(64px, calc(env(safe-area-inset-top) + 52px)); }
-        .fret-target { flex: 0 0 clamp(42px, 12vw, 54px); width: clamp(42px, 12vw, 54px); height: clamp(42px, 12vw, 54px); font-size: .9rem; }
-        .target-bar { padding: 0 2px; bottom: max(42px, env(safe-area-inset-bottom)); }
+        .game-audio-controls { top: max(104px, calc(env(safe-area-inset-top) + 92px)); }
+        .fret-target { flex: 0 0 min(21vw, 78px); width: min(21vw, 78px); height: min(21vw, 78px); font-size: clamp(1rem, 5vw, 1.4rem); }
+        .target-bar { padding: 0 1px; bottom: max(42px, env(safe-area-inset-bottom)); }
         .note { width: 38px; height: 38px; }
         .feedback { font-size: clamp(1.5rem, 7vw, 2rem); }
         .player-card-list { gap: 10px; }
@@ -786,7 +792,8 @@
       @media (max-width: 700px) and (orientation: landscape) {
         .hud { width: calc(100% - 112px); }
         .song-progress { top: max(60px, calc(env(safe-area-inset-top) + 48px)); }
-        .fret-target { flex-basis: clamp(38px, 9vh, 50px); width: clamp(38px, 9vh, 50px); height: clamp(38px, 9vh, 50px); }
+        .game-audio-controls { top: max(96px, calc(env(safe-area-inset-top) + 84px)); }
+        .fret-target { flex-basis: min(18vw, 14vh, 68px); width: min(18vw, 14vh, 68px); height: min(18vw, 14vh, 68px); }
         .target-bar { bottom: max(28px, env(safe-area-inset-bottom)); }
         .band-svg { width: min(35vw, 190px); bottom: 12%; }
       }
@@ -832,6 +839,7 @@
           <option value="0">🎵 Song 1: Cyberpunk Rush (Energetik)</option>
           <option value="1">🎵 Song 2: Neon Synthwave (Medium)</option>
           <option value="2">🎵 Song 3: Speed Metal (Fast/Hard)</option>
+          <option value="3">🎵 Song 4: Neon Marathon (~1 menit)</option>
         </select>
         <label class="btn-ui" for="custom-song-file" style="display:block;text-align:center;cursor:pointer">PILIH LAGU SENDIRI (MP3/WAV)</label>
         <input id="custom-song-file" type="file" accept="audio/*" style="display:none" onchange="loadCustomSong(this.files[0])" />
@@ -992,6 +1000,11 @@
         <div class="song-progress-track"><div class="song-progress-fill" id="song-progress-fill"></div></div>
         <time id="song-duration">0:00</time>
       </div>
+      <div class="game-audio-controls" aria-label="Kontrol permainan">
+        <button id="game-pause" type="button" aria-label="Jeda permainan">JEDA</button>
+        <label for="game-volume" aria-label="Volume musik">VOL</label>
+        <input id="game-volume" type="range" min="0" max="1" step="0.05" value="0.4" />
+      </div>
       <div class="setting-row" style="margin-top:15px">
         <label for="hit-offset">Kalibrasi timing:</label>
         <input type="range" id="hit-offset" min="-120" max="120" step="5" value="0" />
@@ -1117,6 +1130,7 @@
       let songNoteStep = 0;
       let songProgressTimer = null;
       let songFinishTimer = null;
+      let resumeSongPlayback = null;
       let songStartedAt = 0;
       let songDurationMs = 0;
       let selectedPlayerCount = 1;
@@ -1139,6 +1153,8 @@
       let bestCombo = 0;
       let lastMobileTapAt = 0;
       let activePointerFret = null;
+      let gamePaused = false;
+      let pauseStartedAt = 0;
 
       const songs = [
         [
@@ -1153,6 +1169,12 @@
           523.25, 587.33, 659.25, 523.25, 659.25, 783.99, 659.25, 523.25, 440.0,
           523.25, 659.25, 783.99,
         ],
+        Array.from({ length: 120 }, (_, beat) => {
+          const phrase = [261.63, 329.63, 392.0, 523.25, 392.0, 329.63, 261.63, 392.0,
+            293.66, 349.23, 440.0, 587.33, 440.0, 349.23, 293.66, 440.0];
+          const phraseBeat = beat % phrase.length;
+          return beat % 32 >= 24 && phraseBeat % 4 === 3 ? 659.25 : phrase[phraseBeat];
+        }),
       ];
 
       function playSound(freq, duration = 0.2, type = "sawtooth", volume = songVolume) {
@@ -1177,8 +1199,10 @@
         const songNotes = songs[songIdx];
         songNoteStep = 0;
         const diff = document.getElementById("difficulty").value;
-        beatIntervalMs = diff === "easy" ? 750 : diff === "medium" ? 500 : 280;
         const isCustomSong = Boolean(customSongAudio && customSongUrl && customSongSelected);
+        const isMarathonSong = !isCustomSong && songIdx === 3;
+        beatIntervalMs = isMarathonSong ? 500 : diff === "easy" ? 750 : diff === "medium" ? 500 : 280;
+        resumeSongPlayback = null;
         roundSongName = isCustomSong ? customSongAudio.name : document.getElementById("song-select").selectedOptions[0].textContent;
         const notesForSong = isCustomSong ? null : songNotes;
         const noteCount = notesForSong ? notesForSong.length : 0;
@@ -1212,20 +1236,26 @@
         }
         // Start the first note immediately and keep each note aligned with the selected pace.
         const playNextSongNote = () => {
+          if (gamePaused || roundFinished) return;
           if (songNoteStep >= noteCount) {
-            finishGame();
+            const remaining = Math.max(0, songStartedAt + songDurationMs - performance.now());
+            songFinishTimer = setTimeout(finishGame, remaining);
             return;
           }
-          playSound(notesForSong[songNoteStep], Math.min(.25, beatIntervalMs / 1000), "triangle");
-          animateStageEq();
-          songNoteStep++;
-          songNoteTimer = setTimeout(playNextSongNote, beatIntervalMs);
+          const dueAt = songStartedAt + songNoteStep * beatIntervalMs;
+          songNoteTimer = setTimeout(() => {
+            if (gamePaused || roundFinished) return;
+            playSound(notesForSong[songNoteStep], Math.min(.25, beatIntervalMs / 1000), "triangle");
+            animateStageEq();
+            songNoteStep++;
+            playNextSongNote();
+          }, Math.max(0, dueAt - performance.now()));
         };
+        resumeSongPlayback = playNextSongNote;
         playNextSongNote();
         songProgressTimer = setInterval(() => {
-          const elapsed = Math.min(songNoteStep * beatIntervalMs, songDurationMs);
+          const elapsed = Math.min(performance.now() - songStartedAt, songDurationMs);
           updateSongProgress(elapsed);
-          if (elapsed >= songDurationMs) finishGame();
         }, 80);
       }
 
@@ -1285,6 +1315,7 @@
         const audio = new Audio();
         customSongAudio = audio;
         audio.preload = "auto";
+        audio.volume = songVolume;
         audio.src = customSongUrl;
         document.getElementById("custom-song-name").textContent = `Lagu dipilih: ${file.name}`;
         document.getElementById("custom-song-name").style.display = "block";
@@ -1369,6 +1400,7 @@
       function finishGame() {
         if (roundFinished || !players.length) return;
         roundFinished = true;
+        gamePaused = false;
         stopSongMusic();
         clearInterval(songIntervalId);
         cancelAnimationFrame(gameLoopId);
@@ -1665,6 +1697,7 @@
       function initEngine(playerCount) {
         selectedPlayerCount = playerCount;
         roundFinished = false;
+        gamePaused = false;
         clearInterval(songIntervalId);
         stopSongMusic();
         if (customSongAudio) customSongAudio.pause();
@@ -1672,6 +1705,9 @@
         document.getElementById("menu").style.display = "none";
         const container = document.getElementById("game-container");
         container.style.display = "flex";
+        container.classList.remove("is-paused");
+        document.getElementById("game-pause").textContent = "JEDA";
+        document.getElementById("game-volume").value = String(songVolume);
 
         const existingTracks = container.querySelectorAll(".track-container");
         existingTracks.forEach((t) => t.remove());
@@ -1742,6 +1778,8 @@
         roomPingTimer = null;
         if (customSongAudio) customSongAudio.pause();
         roundFinished = true;
+        gamePaused = false;
+        document.getElementById("game-container").classList.remove("is-paused");
         players = [];
         document.getElementById("result-modal").style.display = "none";
         document.getElementById("song-progress-fill").style.width = "0%";
@@ -1765,6 +1803,49 @@
       }
 
       document.getElementById("game-fullscreen").addEventListener("click", enterGameFullscreen);
+
+      function toggleGamePause() {
+        if (!players.length || roundFinished) return;
+        gamePaused = !gamePaused;
+        const container = document.getElementById("game-container");
+        const pauseButton = document.getElementById("game-pause");
+        if (gamePaused) {
+          pauseStartedAt = performance.now();
+          clearInterval(songIntervalId);
+          clearInterval(songProgressTimer);
+          clearTimeout(songNoteTimer);
+          clearTimeout(songFinishTimer);
+          if (customSongAudio) customSongAudio.pause();
+          container.classList.add("is-paused");
+          pauseButton.textContent = "LANJUT";
+          pauseButton.setAttribute("aria-label", "Lanjutkan permainan");
+          return;
+        }
+        const pausedFor = performance.now() - pauseStartedAt;
+        songStartedAt += pausedFor;
+        container.classList.remove("is-paused");
+        pauseButton.textContent = "JEDA";
+        pauseButton.setAttribute("aria-label", "Jeda permainan");
+        if (customSongAudio && customSongSelected) customSongAudio.play().catch(() => {});
+        else if (resumeSongPlayback) resumeSongPlayback();
+        songProgressTimer = setInterval(() => {
+          const elapsed = customSongAudio && customSongSelected
+            ? customSongAudio.currentTime * 1000
+            : Math.min(performance.now() - songStartedAt, songDurationMs);
+          updateSongProgress(elapsed);
+        }, 80);
+        songIntervalId = setInterval(() => {
+          if (customSongAudio && customSongSelected && !customSongAudio.paused && !roundFinished) spawnBeatNote();
+          else if (!customSongSelected && !roundFinished) spawnBeatNote();
+        }, customSongAudio && customSongSelected
+          ? Math.max(180, 60000 / Number(document.getElementById("custom-bpm").value || 120))
+          : beatIntervalMs);
+      }
+      document.getElementById("game-pause").addEventListener("click", toggleGamePause);
+      document.getElementById("game-volume").addEventListener("input", (event) => {
+        songVolume = Number(event.target.value);
+        if (customSongAudio) customSongAudio.volume = songVolume;
+      });
 
       // Prevent browser double-tap zoom only while the game is visible on touch devices.
       document.addEventListener("touchend", (event) => {
@@ -1837,6 +1918,10 @@
       }
 
       function updateEngine(now) {
+        if (gamePaused) {
+          gameLoopId = requestAnimationFrame(updateEngine);
+          return;
+        }
         const delta = Math.min(2.5, (now - lastFrameTime) / 16.66);
         lastFrameTime = now;
 
@@ -1989,6 +2074,7 @@
       }
 
       window.addEventListener("keydown", (e) => {
+        if (gamePaused) return;
         keyMappings.forEach((map, pIdx) => {
           const keyIdx = map.keys.indexOf(e.key);
           if (keyIdx !== -1 && !activeHolds[`${pIdx}-${keyIdx}`]) {
