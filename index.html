@@ -4,8 +4,15 @@
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
+    <meta name="theme-color" content="#080511" />
+    <meta name="description" content="Musik Mania — game ritme neon yang bisa dimainkan langsung di ponsel dan dipasang sebagai aplikasi." />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="icons/icon.svg" />
     <title>Musik Mania - Online Room Lobby Edition</title>
     <link rel="manifest" href="manifest.json" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -158,8 +165,8 @@
 
       .btn-exit {
         position: absolute;
-        top: 20px;
-        right: 20px;
+        top: max(16px, env(safe-area-inset-top));
+        right: max(16px, env(safe-area-inset-right));
         z-index: 50;
         padding: 12px 24px;
         border-radius: 30px;
@@ -439,13 +446,13 @@
         max-width: 440px;
         height: 100%;
         position: relative;
-        perspective: 450px;
+        perspective: none;
       }
       .board {
         position: absolute;
         width: 100%;
         height: 100%;
-        transform: rotateX(48deg);
+        transform: none;
         transform-origin: bottom center;
         background: linear-gradient(
           to bottom,
@@ -561,6 +568,17 @@
         will-change: transform, top;
         animation: noteGlow 0.5s infinite alternate;
       }
+      .song-load-status { display: none; gap: 7px; color: rgba(255,255,255,.76); font-size: .74rem; }
+      .song-load-status.visible { display: grid; }
+      .song-load-track { height: 7px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.14); }
+      .song-load-fill { width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg,var(--accent-cyan),var(--accent-pink)); transition: width .18s ease; }
+      .song-load-status[data-state="loading"] .song-load-fill { animation: songLoadPulse 1.2s ease-in-out infinite alternate; }
+      .song-load-status[data-state="ready"] { color: var(--accent-green); }
+      .song-load-status[data-state="error"] { color: var(--accent-pink); }
+      @keyframes songLoadPulse { from { filter: brightness(.8); } to { filter: brightness(1.5); } }
+      .btn-ui:disabled { opacity: .45; cursor: wait; transform: none; box-shadow: none; }
+      .board { overflow: visible; }
+      .note { z-index: 12; }
 
       @keyframes noteGlow {
         0% {
@@ -613,8 +631,11 @@
 
       .hud {
         position: absolute;
-        top: 20px;
-        left: 20px;
+        top: max(16px, env(safe-area-inset-top));
+        left: max(16px, env(safe-area-inset-left));
+        right: 116px;
+        width: auto;
+        max-width: calc(100% - 148px);
         display: flex;
         gap: 15px;
         font-size: 0.85rem;
@@ -626,8 +647,117 @@
         backdrop-filter: blur(12px);
         border: 1px solid var(--glass-border);
       }
+      .band-svg .person-shadow { fill: rgba(2, 1, 8, .9); }
+      .band-svg .person-highlight { fill: rgba(255, 255, 255, .14); }
+      .band-svg .limb { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+      .song-progress {
+        position: absolute; z-index: 30; top: max(72px, calc(env(safe-area-inset-top) + 56px));
+        left: 50%; transform: translateX(-50%); width: min(440px, calc(100% - 32px));
+        display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+        border: 1px solid rgba(255,255,255,.12); border-radius: 16px;
+        background: rgba(5,3,12,.58); backdrop-filter: blur(12px);
+      }
+      .song-progress time { min-width: 36px; color: rgba(255,255,255,.72); font-size: .68rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+      .song-progress time:last-child { text-align: right; }
+      .song-progress-track { height: 6px; flex: 1; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.14); }
+      .song-progress-fill { width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg,var(--accent-cyan),var(--accent-pink)); box-shadow: 0 0 14px rgba(0,240,255,.55); transition: width .12s linear; }
+      .song-progress-fill { will-change: width; }
+      .track-container, .highway, .board { contain: layout paint; }
+      .note { backface-visibility: hidden; transform: translate3d(-50%,0,0); }
+      .online-rival { display: block; margin-top: 4px; color: rgba(255,255,255,.7); font-size: .72em; white-space: nowrap; }
+      .online-rival strong { color: #fff; }
+      .combo-best { color: var(--accent-yellow); }
+      #hit-offset { accent-color: var(--accent-cyan); }
+
+      #result-modal {
+        display: none; position: fixed; inset: 0; z-index: 150; flex-direction: column;
+        align-items: center; justify-content: center; gap: 14px; padding: 24px;
+        background: rgba(4,2,9,.82); backdrop-filter: blur(20px);
+      }
+      .result-card { width: min(100%, 420px); padding: 30px; text-align: center; border: 1px solid var(--glass-border); border-radius: 28px; background: linear-gradient(145deg,rgba(30,15,54,.96),rgba(8,5,18,.96)); box-shadow: 0 28px 100px rgba(0,0,0,.55); }
+      .result-card h2 { margin-bottom: 8px; font-size: 2rem; font-weight: 900; }
+      .result-score { margin: 18px 0 24px; color: var(--accent-cyan); font-size: 2.6rem; font-weight: 900; text-shadow: 0 0 24px rgba(0,240,255,.4); }
+      .result-card .btn-ui { margin-top: 9px; }
       .ping-badge {
         color: var(--accent-cyan);
+        white-space: nowrap;
+      }
+
+      /* RESPONSIVE, MOTION-SAFE, TOUCH-FIRST POLISH */
+      :root { color-scheme: dark; }
+      html { min-height: 100%; background: var(--bg); }
+      body { min-height: 100svh; height: 100svh; }
+      button, select, input { font: inherit; }
+      button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+      .btn-ui, .btn-exit, .fret-target, .player-card, .input-ui {
+        transition: transform 180ms cubic-bezier(.2,.8,.2,1), background-color 180ms ease,
+          border-color 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+      }
+      .btn-ui:active, .btn-exit:active { transform: scale(.97); }
+      .btn-ui:focus-visible, .btn-exit:focus-visible, .input-ui:focus-visible {
+        outline: 2px solid var(--accent-cyan); outline-offset: 3px;
+      }
+      #menu, #settings-modal, #lobby-modal {
+        min-height: 100svh; height: 100svh;
+        padding: max(24px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
+        overflow-y: auto; overscroll-behavior: contain;
+      }
+      #menu {
+        background: radial-gradient(ellipse at 50% 18%, #25104a 0%, #0b0616 42%, #040209 100%);
+      }
+      #menu::before {
+        content: ""; position: absolute; inset: 12% 12% auto; height: 220px;
+        background: radial-gradient(ellipse, rgba(0,240,255,.12), transparent 70%);
+        filter: blur(22px); pointer-events: none;
+      }
+      .brand-title { line-height: 1.04; }
+      .card-container {
+        max-width: 380px; padding: 18px; gap: 10px;
+        border: 1px solid rgba(255,255,255,.09); border-radius: 26px;
+        background: rgba(14,10,27,.62); box-shadow: 0 24px 80px rgba(0,0,0,.36);
+        backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      }
+      #game-container { height: 100svh; height: 100dvh; }
+      .track-container { min-width: 0; }
+      .highway { overflow: hidden; }
+      .board { transform: none; }
+      .highway { perspective: none; }
+      .target-bar { bottom: max(54px, env(safe-area-inset-bottom)); }
+      .fret-target { touch-action: none; user-select: none; }
+      .note { animation: none; }
+      .spark { will-change: transform, opacity; }
+      @media (max-width: 700px) {
+        .brand-title { font-size: clamp(2.4rem, 12vw, 3.5rem); }
+        .brand-subtitle { font-size: .68rem; letter-spacing: .36em; margin-bottom: 12px; }
+        .card-container { width: min(100%, 390px); }
+        .btn-ui { min-height: 50px; padding: 13px 16px; font-size: .83rem; }
+        .input-ui { min-height: 48px; font-size: .88rem; }
+        .hud {
+          top: max(12px, env(safe-area-inset-top)); left: 12px; right: 100px;
+          max-width: calc(100% - 124px); gap: 8px; padding: 9px 11px;
+          border-radius: 15px; font-size: .68rem;
+        }
+        .btn-exit {
+          top: max(12px, env(safe-area-inset-top)); right: 12px;
+          min-height: 40px; padding: 9px 13px; font-size: .7rem;
+        }
+        .song-progress { top: max(64px, calc(env(safe-area-inset-top) + 52px)); }
+        .fret-target { width: clamp(42px, 12vw, 54px); height: clamp(42px, 12vw, 54px); font-size: .9rem; }
+        .target-bar { padding: 0 4px; }
+        .note { width: 38px; height: 38px; }
+        .feedback { font-size: clamp(1.5rem, 7vw, 2rem); }
+        .player-card-list { gap: 10px; }
+        .player-card { padding: 14px 8px; }
+      }
+      @media (max-height: 700px) {
+        #menu { gap: 9px; justify-content: flex-start; }
+        .brand-subtitle { margin-bottom: 4px; }
+        .card-container { padding: 12px; gap: 7px; }
+        .btn-ui { min-height: 42px; padding-block: 10px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
       }
 
       .feedback {
@@ -658,11 +788,21 @@
       <div class="brand-subtitle">Ultimate Beat Experience</div>
 
       <div class="card-container">
-        <select id="song-select" class="input-ui">
+        <select id="song-select" class="input-ui" onchange="selectBuiltInSong()">
           <option value="0">🎵 Song 1: Cyberpunk Rush (Energetik)</option>
           <option value="1">🎵 Song 2: Neon Synthwave (Medium)</option>
           <option value="2">🎵 Song 3: Speed Metal (Fast/Hard)</option>
         </select>
+        <label class="btn-ui" for="custom-song-file" style="display:block;text-align:center;cursor:pointer">PILIH LAGU SENDIRI (MP3/WAV)</label>
+        <input id="custom-song-file" type="file" accept="audio/*" style="display:none" onchange="loadCustomSong(this.files[0])" />
+        <div id="custom-song-name" style="display:none;color:var(--accent-cyan);font-size:.78rem;text-align:center"></div>
+        <div id="custom-song-load" class="song-load-status" role="status" aria-live="polite" data-state="idle">
+          <span id="custom-song-load-message">Menyiapkan lagu...</span>
+          <div class="song-load-track" role="progressbar" aria-label="Progres pemuatan lagu" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="custom-song-load-fill" class="song-load-fill"></div></div>
+        </div>
+        <label style="display:flex;align-items:center;gap:10px;font-size:.78rem;color:rgba(255,255,255,.72)">
+          <span>Tempo lagu sendiri</span><input id="custom-bpm" type="number" min="50" max="240" value="120" class="input-ui" style="width:90px;padding:9px" />
+        </label>
 
         <select id="difficulty" class="input-ui">
           <option value="easy">EASY</option>
@@ -670,10 +810,10 @@
           <option value="hard">HARD</option>
         </select>
 
-        <button class="btn-ui btn-primary" onclick="startGame(1)">
+        <button class="btn-ui btn-primary game-start-button" onclick="startGame(1)">
           SINGLE PLAYER
         </button>
-        <button class="btn-ui" onclick="startGame(2)">SPLIT SCREEN (2P)</button>
+        <button class="btn-ui game-start-button" onclick="startGame(2)">SPLIT SCREEN (2P)</button>
 
         <div style="display: flex; gap: 8px">
           <input
@@ -690,7 +830,7 @@
             ACAK
           </button>
         </div>
-        <button class="btn-ui" onclick="joinOnlineRoom()">
+        <button class="btn-ui game-start-button" onclick="joinOnlineRoom()">
           MASUK ROOM ONLINE
         </button>
         <button
@@ -790,54 +930,44 @@
         <div class="spotlight spotlight-2"></div>
 
         <!-- BAND ANIMATION -->
-        <svg class="band-svg" viewBox="0 0 300 150">
-          <g class="drummer-anim">
-            <circle cx="150" cy="40" r="10" fill="var(--accent-yellow)" />
-            <path
-              d="M140 52 L160 52 L155 90 L145 90 Z"
-              fill="var(--accent-yellow)"
-            />
-            <ellipse
-              cx="150"
-              cy="95"
-              rx="25"
-              ry="15"
-              fill="rgba(255,255,255,0.2)"
-              stroke="#fff"
-              stroke-width="2"
-            />
+        <svg class="band-svg" viewBox="0 0 360 220" aria-hidden="true">
+          <defs><linearGradient id="stagePerson" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#dffcff"/><stop offset=".45" stop-color="#8b72ff"/><stop offset="1" stop-color="#ff3d8f"/></linearGradient><linearGradient id="stageGuitar" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffdb68"/><stop offset="1" stop-color="#ff397c"/></linearGradient></defs>
+          <ellipse cx="180" cy="204" rx="150" ry="9" fill="rgba(0,240,255,.18)"/>
+          <g class="vocalist-anim" fill="url(#stagePerson)" stroke="#120b23" stroke-width="3" stroke-linejoin="round">
+            <ellipse class="person-shadow" cx="93" cy="202" rx="29" ry="5" stroke="none"/><circle cx="96" cy="51" r="16"/><path d="M83 68 Q96 61 109 70 L117 128 Q104 139 78 128Z"/><path class="limb" d="M85 78 Q72 92 66 110 L56 91 M108 79 Q120 83 127 97" stroke="url(#stagePerson)" stroke-width="9"/><path d="M80 126 L108 129 L110 179 L98 181 L91 145 L84 181 L70 180Z"/><path class="limb" d="M77 177 L69 199 M105 177 L111 199" stroke="#e4e2ff" stroke-width="9"/><path d="M110 81 Q125 75 127 95" fill="none" stroke="#ff4f92" stroke-width="4"/><circle cx="128" cy="94" r="4" fill="#fff" stroke="none"/>
           </g>
-          <g class="vocalist-anim">
-            <circle cx="90" cy="45" r="12" fill="var(--accent-cyan)" />
-            <path
-              d="M82 61 L98 61 L94 120 L86 120 Z"
-              fill="var(--accent-cyan)"
-            />
-            <path
-              d="M78 67 L65 50"
-              stroke="var(--accent-pink)"
-              stroke-width="4"
-              stroke-linecap="round"
-            />
+          <g class="guitarist-anim" stroke="#130b22" stroke-width="3" stroke-linejoin="round">
+            <ellipse class="person-shadow" cx="265" cy="202" rx="31" ry="5" stroke="none"/><circle cx="268" cy="53" r="16" fill="url(#stagePerson)"/><path d="M252 72 Q268 64 283 74 L290 132 Q273 140 247 131Z" fill="url(#stagePerson)"/><path d="M256 82 L244 112 L224 119 M282 82 L299 96 L321 91" fill="none" stroke="url(#stagePerson)" stroke-width="10" stroke-linecap="round"/><path d="M253 130 L285 133 L285 179 L272 181 L266 148 L258 181 L245 179Z" fill="url(#stagePerson)"/><path d="M251 177 L243 199 M281 177 L290 198" fill="none" stroke="#e4e2ff" stroke-width="9" stroke-linecap="round"/><path d="M225 112 Q237 104 248 115 Q256 125 245 135 Q233 143 224 132Z" fill="url(#stageGuitar)"/><path d="M238 120 L318 91" stroke="url(#stageGuitar)" stroke-width="6" stroke-linecap="round"/><path d="M232 121 L317 91" stroke="#fff" stroke-opacity=".72" stroke-width="1.5"/>
           </g>
-          <g class="guitarist-anim">
-            <circle cx="210" cy="50" r="12" fill="var(--accent-pink)" />
-            <path
-              d="M202 66 L218 66 L214 125 L206 125 Z"
-              fill="var(--accent-pink)"
-            />
-            <path
-              d="M180 83 L240 65"
-              stroke="var(--accent-yellow)"
-              stroke-width="5"
-              stroke-linecap="round"
-            />
-          </g>
+          <g class="drummer-anim" fill="url(#stagePerson)" stroke="#140b22" stroke-width="3"><ellipse class="person-shadow" cx="180" cy="202" rx="25" ry="5" stroke="none"/><circle cx="180" cy="74" r="14"/><path d="M166 90 Q180 84 194 91 L200 129 L160 129Z"/><path d="M166 96 L146 113 M194 96 L213 111" fill="none" stroke="url(#stagePerson)" stroke-width="8" stroke-linecap="round"/><path d="M170 128 L190 128 L194 158 L166 158Z"/><path d="M153 154 Q180 145 207 154 L202 188 Q180 197 158 188Z" fill="#3a225c"/><ellipse cx="180" cy="155" rx="27" ry="8" fill="#a978ff"/><path d="M153 151 L153 182 M207 151 L207 182" fill="none" stroke="#f3cfff" stroke-width="4"/></g>
+          <path d="M134 143 L223 143 M139 143 L130 194 M218 143 L228 194" fill="none" stroke="#dffcff" stroke-opacity=".7" stroke-width="3"/><path d="M132 139 L220 139" stroke="#ffdb68" stroke-width="5" stroke-linecap="round"/>
         </svg>
       </div>
 
       <!-- Tombol Keluar Baku & Rapi -->
       <button class="btn-exit" onclick="exitGame()">KELUAR</button>
+      <div class="song-progress" aria-label="Progres lagu">
+        <time id="song-elapsed">0:00</time>
+        <div class="song-progress-track"><div class="song-progress-fill" id="song-progress-fill"></div></div>
+        <time id="song-duration">0:00</time>
+      </div>
+      <div class="setting-row" style="margin-top:15px">
+        <label for="hit-offset">Kalibrasi timing:</label>
+        <input type="range" id="hit-offset" min="-120" max="120" step="5" value="0" />
+        <span id="hit-offset-value">0 ms</span>
+      </div>
+    </div>
+
+    <div id="result-modal" role="dialog" aria-modal="true" aria-labelledby="result-title">
+      <div class="result-card">
+        <h2 id="result-title">LAGU SELESAI!</h2>
+        <p>Ritme kamu keren. Ini skor akhir kamu:</p>
+        <div class="result-score" id="final-score">0</div>
+        <div id="final-accuracy" style="margin:0 0 12px;color:var(--accent-green);font-size:1.1rem;font-weight:900">AKURASI 0%</div>
+        <div id="leaderboard" style="margin:14px 0;text-align:left;font-size:.85rem;color:rgba(255,255,255,.82)"></div>
+        <button class="btn-ui btn-primary" onclick="restartGame()">MAIN LAGI</button>
+        <button class="btn-ui" onclick="exitGame()">KEMBALI KE MENU</button>
+      </div>
     </div>
 
     <!-- SDK FIREBASE ESM CDN VIA TYPE MODULE -->
@@ -850,6 +980,12 @@
         getDoc,
         onSnapshot,
         updateDoc,
+        collection,
+        addDoc,
+        query,
+        orderBy,
+        limit,
+        getDocs,
       } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
       const firebaseConfig = {
@@ -871,6 +1007,12 @@
       window.getDoc = getDoc;
       window.onSnapshot = onSnapshot;
       window.updateDoc = updateDoc;
+      window.firestoreCollection = collection;
+      window.firestoreAddDoc = addDoc;
+      window.firestoreQuery = query;
+      window.firestoreOrderBy = orderBy;
+      window.firestoreLimit = limit;
+      window.firestoreGetDocs = getDocs;
     </script>
 
     <script>
@@ -902,6 +1044,10 @@
       }
 
       function animateMenuBg() {
+        if (document.hidden) {
+          requestAnimationFrame(animateMenuBg);
+          return;
+        }
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         particles.forEach((p) => {
           p.y -= p.speedY;
@@ -928,6 +1074,28 @@
       let songVolume = 0.4;
       let songNoteTimer = null;
       let songNoteStep = 0;
+      let songProgressTimer = null;
+      let songFinishTimer = null;
+      let songStartedAt = 0;
+      let songDurationMs = 0;
+      let selectedPlayerCount = 1;
+      let roundFinished = false;
+      let customSongUrl = null;
+      let customSongAudio = null;
+      let customSongSelected = false;
+      let customSongReady = false;
+      let customSongLoadToken = 0;
+      let beatIntervalMs = 500;
+      let roundSongName = "";
+      let roundNotesSpawned = 0;
+      let roundNotesHit = 0;
+      let roundNotesPerfect = 0;
+      let playerAccuracyStats = [];
+      let hitOffsetMs = Number(localStorage.getItem("musikManiaHitOffset") || 0);
+      let roomRefCurrent = null;
+      let roomPingTimer = null;
+      let myOnlineName = "Pemain";
+      let bestCombo = 0;
 
       const songs = [
         [
@@ -944,13 +1112,13 @@
         ],
       ];
 
-      function playSound(freq, duration = 0.2, type = "sawtooth") {
+      function playSound(freq, duration = 0.2, type = "sawtooth", volume = songVolume) {
         if (audioCtx.state === "suspended") audioCtx.resume();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = type;
         osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-        gain.gain.setValueAtTime(songVolume, audioCtx.currentTime);
+        gain.gain.setValueAtTime(volume, audioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(
           0.001,
           audioCtx.currentTime + duration,
@@ -962,21 +1130,216 @@
       }
 
       function startSongMusic() {
-        const songIdx = parseInt(document.getElementById("song-select").value);
+        const songIdx = parseInt(document.getElementById("song-select").value, 10) || 0;
         const songNotes = songs[songIdx];
         songNoteStep = 0;
+        const diff = document.getElementById("difficulty").value;
+        beatIntervalMs = diff === "easy" ? 750 : diff === "medium" ? 500 : 280;
+        const isCustomSong = Boolean(customSongAudio && customSongUrl && customSongSelected);
+        roundSongName = isCustomSong ? customSongAudio.name : document.getElementById("song-select").selectedOptions[0].textContent;
+        const notesForSong = isCustomSong ? null : songNotes;
+        const noteCount = notesForSong ? notesForSong.length : 0;
+        songDurationMs = isCustomSong ? Infinity : noteCount * beatIntervalMs;
+        songStartedAt = performance.now();
+        roundFinished = false;
+        roundNotesSpawned = 0;
+        roundNotesHit = 0;
+        roundNotesPerfect = 0;
+        playerAccuracyStats = players.map(() => ({ spawned: 0, hit: 0, perfect: 0 }));
+        updateSongProgress(0);
+        document.getElementById("song-duration").textContent = isCustomSong && Number.isFinite(customSongAudio.duration)
+          ? formatSongTime(customSongAudio.duration * 1000)
+          : formatSongTime(songDurationMs);
 
-        if (songNoteTimer) clearInterval(songNoteTimer);
-        songNoteTimer = setInterval(() => {
-          const freq = songNotes[songNoteStep % songNotes.length];
-          playSound(freq, 0.25, "triangle");
+        stopSongMusic();
+        if (isCustomSong) {
+          customSongAudio.pause();
+          customSongAudio.currentTime = 0;
+        }
+        if (isCustomSong) {
+          customSongAudio.play().catch(() => showFeedback(0, "TEKAN UNTUK MULAI AUDIO", "var(--accent-yellow)"));
+          customSongAudio.onended = finishGame;
+          songProgressTimer = setInterval(() => {
+            if (!customSongAudio || !Number.isFinite(customSongAudio.duration)) return;
+            songDurationMs = customSongAudio.duration * 1000;
+            updateSongProgress(customSongAudio.currentTime * 1000);
+            if (customSongAudio.ended) finishGame();
+          }, 80);
+          return;
+        }
+        // Start the first note immediately and keep each note aligned with the selected pace.
+        const playNextSongNote = () => {
+          if (songNoteStep >= noteCount) {
+            finishGame();
+            return;
+          }
+          playSound(notesForSong[songNoteStep], Math.min(.25, beatIntervalMs / 1000), "triangle");
           animateStageEq();
           songNoteStep++;
-        }, 250);
+          songNoteTimer = setTimeout(playNextSongNote, beatIntervalMs);
+        };
+        playNextSongNote();
+        songProgressTimer = setInterval(() => {
+          const elapsed = Math.min(songNoteStep * beatIntervalMs, songDurationMs);
+          updateSongProgress(elapsed);
+          if (elapsed >= songDurationMs) finishGame();
+        }, 80);
       }
 
       function stopSongMusic() {
-        if (songNoteTimer) clearInterval(songNoteTimer);
+        if (songNoteTimer) clearTimeout(songNoteTimer);
+        if (songProgressTimer) clearInterval(songProgressTimer);
+        if (songFinishTimer) clearTimeout(songFinishTimer);
+        songNoteTimer = null;
+        songProgressTimer = null;
+        songFinishTimer = null;
+      }
+
+      function formatSongTime(milliseconds) {
+        const seconds = Math.floor(milliseconds / 1000);
+        return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`;
+      }
+
+      function updateSongProgress(elapsed) {
+        const duration = customSongAudio && Number.isFinite(customSongAudio.duration)
+          ? customSongAudio.duration * 1000 : songDurationMs;
+        const progress = duration && Number.isFinite(duration) ? Math.min(100, (elapsed / duration) * 100) : 0;
+        document.getElementById("song-progress-fill").style.width = `${progress}%`;
+        document.getElementById("song-elapsed").textContent = formatSongTime(elapsed);
+      }
+
+      function setCustomSongLoad(state, message, progress) {
+        const status = document.getElementById("custom-song-load");
+        const fill = document.getElementById("custom-song-load-fill");
+        const bar = status.querySelector('[role="progressbar"]');
+        status.classList.add("visible");
+        status.dataset.state = state;
+        document.getElementById("custom-song-load-message").textContent = message;
+        fill.style.width = `${progress}%`;
+        bar.setAttribute("aria-valuenow", String(progress));
+      }
+
+      function updateCustomSongBuffer(audio, token) {
+        if (token !== customSongLoadToken || customSongReady) return;
+        let progress = 12;
+        if (Number.isFinite(audio.duration) && audio.duration > 0 && audio.buffered.length) {
+          progress = Math.min(90, Math.max(12, Math.round(audio.buffered.end(audio.buffered.length - 1) / audio.duration * 90)));
+        } else if (audio.readyState >= HTMLMediaElement.HAVE_METADATA) {
+          progress = 30;
+        }
+        setCustomSongLoad("loading", audio.readyState >= HTMLMediaElement.HAVE_METADATA ? "Memuat data audio..." : "Membaca file audio...", progress);
+      }
+
+      function loadCustomSong(file) {
+        if (!file) return;
+        const token = ++customSongLoadToken;
+        customSongReady = false;
+        customSongSelected = true;
+        document.querySelectorAll(".game-start-button").forEach((button) => { button.disabled = true; });
+        if (customSongAudio) customSongAudio.pause();
+        if (customSongUrl) URL.revokeObjectURL(customSongUrl);
+        customSongUrl = URL.createObjectURL(file);
+        const audio = new Audio();
+        customSongAudio = audio;
+        audio.preload = "auto";
+        audio.src = customSongUrl;
+        document.getElementById("custom-song-name").textContent = `Lagu dipilih: ${file.name}`;
+        document.getElementById("custom-song-name").style.display = "block";
+        document.getElementById("song-select").value = "custom";
+        const customOption = document.querySelector('#song-select option[value="custom"]');
+        if (!customOption) document.getElementById("song-select").insertAdjacentHTML("beforeend", '<option value="custom">♫ Lagu sendiri</option>');
+        setCustomSongLoad("loading", "Membaca file audio...", 5);
+
+        const markReady = () => {
+          if (token !== customSongLoadToken) return;
+          customSongReady = true;
+          setCustomSongLoad("ready", `Siap dimainkan · ${file.name}`, 100);
+          document.querySelectorAll(".game-start-button").forEach((button) => { button.disabled = false; });
+        };
+        const markError = () => {
+          if (token !== customSongLoadToken) return;
+          customSongReady = false;
+          customSongSelected = false;
+          document.getElementById("song-select").value = "0";
+          setCustomSongLoad("error", "File gagal dibaca. Pilih audio lain.", 0);
+          document.querySelectorAll(".game-start-button").forEach((button) => { button.disabled = false; });
+        };
+        audio.addEventListener("loadedmetadata", () => updateCustomSongBuffer(audio, token));
+        audio.addEventListener("progress", () => updateCustomSongBuffer(audio, token));
+        audio.addEventListener("canplay", markReady, { once: true });
+        audio.addEventListener("error", markError, { once: true });
+        audio.load();
+      }
+
+      function selectBuiltInSong() {
+        if (document.getElementById("song-select").value !== "custom") {
+          customSongSelected = false;
+          document.querySelectorAll(".game-start-button").forEach((button) => { button.disabled = false; });
+        }
+      }
+
+      function accuracyPercent(stats = playerAccuracyStats[0]) {
+        return stats?.spawned ? Math.round((stats.perfect / stats.spawned) * 100) : 0;
+      }
+
+      async function submitLeaderboard(scores) {
+        const board = document.getElementById("leaderboard");
+        if (!window.db || !window.firestoreCollection) {
+          board.innerHTML = "<strong>LEADERBOARD ONLINE</strong><br><span style='color:#ffcc00'>Tidak tersedia — Firebase belum tersambung.</span>";
+          return;
+        }
+        let playerName = localStorage.getItem("musikManiaPlayerName");
+        if (!playerName) {
+          try { playerName = prompt("Nama untuk leaderboard:"); } catch (_) { playerName = "Pemain"; }
+        }
+        playerName = (playerName || "Pemain").trim().slice(0, 20) || "Pemain";
+        localStorage.setItem("musikManiaPlayerName", playerName);
+        const songName = roundSongName.slice(0, 80);
+        try {
+          for (let index = 0; index < scores.length; index++) {
+            await window.firestoreAddDoc(window.firestoreCollection(window.db, "leaderboard"), {
+              name: scores.length > 1 ? `${playerName} (P${index + 1})` : playerName,
+              score: Number(scores[index]) || 0,
+              accuracy: accuracyPercent(playerAccuracyStats[index]),
+              song: songName,
+              createdAt: Date.now(),
+            });
+          }
+          const scoresQuery = window.firestoreQuery(
+            window.firestoreCollection(window.db, "leaderboard"),
+            window.firestoreOrderBy("score", "desc"),
+            window.firestoreLimit(10),
+          );
+          const snapshot = await window.firestoreGetDocs(scoresQuery);
+          const rows = snapshot.docs.map((item) => item.data()).filter((row) => row.song === songName);
+          board.innerHTML = `<strong>LEADERBOARD ONLINE · ${escapeHtml(songName)}</strong><ol style="padding:8px 0 0 22px">${rows.map((row) => `<li>${escapeHtml(row.name || "Pemain")} — ${Number(row.score) || 0} <span style="color:var(--accent-cyan)">(${Number(row.accuracy) || 0}%)</span></li>`).join("") || "<li>Belum ada skor untuk lagu ini</li>"}</ol>`;
+        } catch (error) {
+          console.error("Leaderboard gagal dimuat. Periksa Firestore rules.", error);
+          board.innerHTML = "<strong>LEADERBOARD ONLINE</strong><br><span style='color:#ffcc00'>Skor gagal dikirim. Periksa koneksi dan Firestore Security Rules.</span>";
+        }
+      }
+
+      function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+      }
+
+      function finishGame() {
+        if (roundFinished || !players.length) return;
+        roundFinished = true;
+        stopSongMusic();
+        clearInterval(songIntervalId);
+        cancelAnimationFrame(gameLoopId);
+        const resultModal = document.getElementById("result-modal");
+        const score = players.map((player) => player.score);
+        document.getElementById("final-score").textContent = score.join("  •  ");
+        const accuracyLabel = playerAccuracyStats.map((stats, index) => `P${index + 1} ${accuracyPercent(stats)}% (${stats.hit}/${stats.spawned})`).join(" · ");
+        document.getElementById("final-accuracy").textContent = `AKURASI TEPAT · ${accuracyLabel}`;
+        document.getElementById("result-title").textContent = score.length > 1 && score[0] !== score[1]
+          ? `PLAYER ${score[0] > score[1] ? "1" : "2"} MENANG!`
+          : "LAGU SELESAI!";
+        resultModal.style.display = "flex";
+        if (customSongAudio) customSongAudio.pause();
+        submitLeaderboard(score);
       }
 
       /* ==========================================
@@ -1035,6 +1398,7 @@
       }
 
       async function joinOnlineRoom() {
+        if (customSongSelected && !customSongReady) return alert("Tunggu sampai lagu sendiri selesai dimuat.");
         const roomInput = document.getElementById("room-id").value.trim();
         if (!roomInput)
           return alert("Masukkan atau buat Kode Room terlebih dahulu!");
@@ -1059,6 +1423,25 @@
         } else {
           playerRole = 1; // P2 (Guest)
         }
+
+        roomRefCurrent = roomRef;
+        myOnlineName = (localStorage.getItem("musikManiaPlayerName") || prompt("Nama pemain:") || `Pemain ${playerRole + 1}`).trim().slice(0, 20);
+        localStorage.setItem("musikManiaPlayerName", myOnlineName);
+        const myRoomPrefix = `p${playerRole + 1}`;
+        await window.updateDoc(roomRef, { [`${myRoomPrefix}_name`]: myOnlineName });
+        if (roomPingTimer) clearInterval(roomPingTimer);
+        const updateRoomPing = async () => {
+          const startedAt = performance.now();
+          try {
+            await window.getDoc(roomRef);
+            const roundTripMs = Math.max(1, Math.round(performance.now() - startedAt));
+            await window.updateDoc(roomRef, { [`${myRoomPrefix}_ping`]: roundTripMs });
+          } catch (error) {
+            console.warn("Ping room tidak tersedia", error);
+          }
+        };
+        updateRoomPing();
+        roomPingTimer = setInterval(updateRoomPing, 8000);
 
         myReadyStatus = false;
         updateReadyButtonUI();
@@ -1098,6 +1481,12 @@
             const oppScoreEl = document.getElementById(`score-${oppRole}`);
             if (oppScoreEl)
               oppScoreEl.innerText = data[`p${oppRole + 1}_score`] || 0;
+            const mobileOppScore = document.getElementById("online-opponent-score");
+            if (mobileOppScore) mobileOppScore.textContent = data[`p${oppRole + 1}_score`] || 0;
+            const mobileOppName = document.getElementById("online-opponent-name");
+            if (mobileOppName) mobileOppName.textContent = data[`p${oppRole + 1}_name`] || `Pemain ${oppRole + 1}`;
+            const mobileOppPing = document.getElementById("online-opponent-ping");
+            if (mobileOppPing) mobileOppPing.textContent = data[`p${oppRole + 1}_ping`] ?? "—";
           }
 
           // OTOMATIS MULAI GAME JIKA KEDUA PLAYER SIAP
@@ -1106,7 +1495,7 @@
               window.updateDoc(roomRef, { gameStarted: true });
             }
             document.getElementById("lobby-modal").style.display = "none";
-            initEngine(2);
+            initEngine(isMobileLayout() ? 1 : 2);
           }
         });
       }
@@ -1135,6 +1524,8 @@
 
       function leaveLobby() {
         if (unsubscribeRoom) unsubscribeRoom();
+        if (roomPingTimer) clearInterval(roomPingTimer);
+        roomPingTimer = null;
         document.getElementById("lobby-modal").style.display = "none";
         isOnline = false;
       }
@@ -1175,14 +1566,22 @@
           songVolume = parseFloat(
             document.getElementById("volume-setting").value,
           );
+          hitOffsetMs = Number(document.getElementById("hit-offset").value) || 0;
+          document.getElementById("hit-offset-value").textContent = `${hitOffsetMs} ms`;
         }
       }
 
+      function isMobileLayout() {
+        return window.matchMedia("(max-width: 700px), (pointer: coarse)").matches;
+      }
+
       function createTrackHTML(pIdx, label) {
+        const onlineMobile = isOnline && isMobileLayout();
+        const storedRecord = Number(localStorage.getItem("musikManiaBestScore") || 0);
         return `
         <div class="track-container" id="track-${pIdx}">
           <div class="hud">
-            <div>${label} &nbsp;|&nbsp; SKOR: <span id="score-${pIdx}">0</span> &nbsp;|&nbsp; COMBO: <span id="combo-${pIdx}">0</span></div>
+            <div>${label} &nbsp;|&nbsp; SKOR: <span id="score-${pIdx}">0</span> &nbsp;|&nbsp; COMBO: <span id="combo-${pIdx}">0</span> <span class="combo-best">BEST ${bestCombo}</span>${onlineMobile ? `<span class="online-rival">LAWAN: <strong id="online-opponent-name">Menunggu...</strong> · <span id="online-opponent-score">0</span> poin · <span id="online-opponent-ping">—</span> ms</span>` : ""}${!isOnline ? `<span class="online-rival">REKOR PRIBADI: <strong>${storedRecord}</strong></span>` : ""}</div>
             <div class="ping-badge"><span id="ping-${pIdx}">18</span>ms</div>
           </div>
           <div class="feedback" id="feedback-${pIdx}">PERFECT!</div>
@@ -1209,11 +1608,24 @@
       }
 
       function startGame(playerCount) {
+        if (customSongSelected && !customSongReady) return alert("Tunggu sampai lagu sendiri selesai dimuat.");
         isOnline = false;
+        selectedPlayerCount = playerCount;
         initEngine(playerCount);
       }
 
+      function restartGame() {
+        document.getElementById("result-modal").style.display = "none";
+        initEngine(selectedPlayerCount);
+      }
+
       function initEngine(playerCount) {
+        selectedPlayerCount = playerCount;
+        roundFinished = false;
+        clearInterval(songIntervalId);
+        stopSongMusic();
+        if (customSongAudio) customSongAudio.pause();
+        document.getElementById("result-modal").style.display = "none";
         document.getElementById("menu").style.display = "none";
         const container = document.getElementById("game-container");
         container.style.display = "flex";
@@ -1221,11 +1633,16 @@
         const existingTracks = container.querySelectorAll(".track-container");
         existingTracks.forEach((t) => t.remove());
 
+        const onlineMobile = isOnline && isMobileLayout();
+        const trackCount = onlineMobile ? 1 : playerCount;
         players = [];
-        for (let i = 0; i < playerCount; i++) {
-          container.innerHTML += createTrackHTML(i, `P${i + 1}`);
+        for (let i = 0; i < trackCount; i++) {
+          const playerLabel = isOnline && onlineMobile ? `P${playerRole + 1} (KAMU)` : `P${i + 1}`;
+          container.insertAdjacentHTML("beforeend", createTrackHTML(i, playerLabel));
           players.push({ score: 0, combo: 0, notes: [] });
         }
+        playerAccuracyStats = players.map(() => ({ spawned: 0, hit: 0, perfect: 0 }));
+        bestCombo = 0;
 
         for (let pIdx = 0; pIdx < playerCount; pIdx++) {
           for (let kIdx = 0; kIdx < 4; kIdx++) {
@@ -1240,28 +1657,41 @@
               releaseHit(pIdx, kIdx);
             };
 
-            fret.addEventListener("touchstart", startPress);
-            fret.addEventListener("touchend", endPress);
-            fret.addEventListener("mousedown", startPress);
-            fret.addEventListener("mouseup", endPress);
+            fret.addEventListener("pointerdown", startPress);
+            fret.addEventListener("pointerup", endPress);
+            fret.addEventListener("pointercancel", endPress);
+            fret.addEventListener("lostpointercapture", endPress);
           }
         }
-
-        const diff = document.getElementById("difficulty").value;
-        const beatInterval =
-          diff === "easy" ? 750 : diff === "medium" ? 500 : 280;
 
         startSongMusic();
 
         lastFrameTime = performance.now();
         gameLoopId = requestAnimationFrame(updateEngine);
-        songIntervalId = setInterval(spawnBeatNote, beatInterval);
+        clearInterval(songIntervalId);
+        if (customSongAudio && customSongSelected) {
+          customSongAudio.onplay = () => { songStartedAt = performance.now(); };
+          customSongAudio.onended = finishGame;
+          songIntervalId = setInterval(() => {
+            if (customSongAudio && !customSongAudio.paused && !roundFinished) spawnBeatNote();
+          }, Math.max(180, 60000 / Number(document.getElementById("custom-bpm").value || 120)));
+        } else {
+          songIntervalId = setInterval(spawnBeatNote, beatIntervalMs);
+        }
       }
 
       function exitGame() {
         cancelAnimationFrame(gameLoopId);
         clearInterval(songIntervalId);
         stopSongMusic();
+        if (roomPingTimer) clearInterval(roomPingTimer);
+        roomPingTimer = null;
+        if (customSongAudio) customSongAudio.pause();
+        roundFinished = true;
+        players = [];
+        document.getElementById("result-modal").style.display = "none";
+        document.getElementById("song-progress-fill").style.width = "0%";
+        document.getElementById("song-elapsed").textContent = "0:00";
 
         if (unsubscribeRoom) unsubscribeRoom();
 
@@ -1270,20 +1700,27 @@
       }
 
       function spawnBeatNote() {
+        if (roundFinished) return;
         const keyIndex = Math.floor(Math.random() * 4);
         const isHold = Math.random() < 0.25;
         const holdLength = isHold ? Math.floor(Math.random() * 100) + 80 : 0;
+        let spawned = false;
 
         players.forEach((p, pIdx) => {
-          if (isOnline && pIdx !== playerRole) return;
+          if (isOnline && !isMobileLayout() && pIdx !== playerRole) return;
 
           const board = document.getElementById(`board-${pIdx}`);
-          if (!board) return;
+          const highway = board?.closest(".highway");
+          if (!board || !highway) return;
 
           const noteEl = document.createElement("div");
           noteEl.className = "note";
           noteEl.setAttribute("data-key", keyIndex);
-          noteEl.style.left = laneXPositions[keyIndex] + "%";
+          const fret = document.getElementById(`fret-${pIdx}-${keyIndex}`);
+          const highwayRect = highway.getBoundingClientRect();
+          const fretRect = fret.getBoundingClientRect();
+          noteEl.style.left = `${fretRect.left + fretRect.width / 2 - highwayRect.left}px`;
+          noteEl.style.top = "-50px";
 
           if (isHold) {
             const tailEl = document.createElement("div");
@@ -1294,7 +1731,7 @@
             noteEl.appendChild(tailEl);
           }
 
-          board.appendChild(noteEl);
+          highway.appendChild(noteEl);
           p.notes.push({
             el: noteEl,
             key: keyIndex,
@@ -1304,22 +1741,27 @@
             holding: false,
             hit: false,
           });
+          if (playerAccuracyStats[pIdx]) playerAccuracyStats[pIdx].spawned++;
+          spawned = true;
         });
+        if (spawned) roundNotesSpawned++;
       }
 
       function updateEngine(now) {
-        const delta = (now - lastFrameTime) / 16.66;
+        const delta = Math.min(2.5, (now - lastFrameTime) / 16.66);
         lastFrameTime = now;
 
-        const boardHeight =
-          document.querySelector(".board")?.clientHeight || 600;
-        const targetY = boardHeight - 90;
-
         players.forEach((p, pIdx) => {
+          const board = document.getElementById(`board-${pIdx}`);
+          const fret = document.getElementById(`fret-${pIdx}-0`);
+          if (!board || !fret) return;
+          const fretRect = fret.getBoundingClientRect();
+          const highwayRect = board.closest(".highway").getBoundingClientRect();
+          const targetY = fretRect.top + fretRect.height / 2 - highwayRect.top;
           for (let i = p.notes.length - 1; i >= 0; i--) {
             const n = p.notes[i];
             n.top += noteSpeed * delta;
-            n.el.style.top = n.top + "px";
+            n.el.style.top = `${n.top}px`;
 
             if (n.holding) {
               n.holdLength -= noteSpeed * delta;
@@ -1338,7 +1780,11 @@
               }
             }
 
-            if (n.top > targetY + 60 + n.holdLength && !n.hit && !n.holding) {
+            const noteRect = n.el.getBoundingClientRect();
+            const noteCenter = noteRect.top + noteRect.height / 2 - highwayRect.top;
+            const fretRadius = fretRect.height / 2;
+            // Miss only after the note's center has passed the full visible target circle.
+            if (noteCenter > targetY + fretRadius + noteRect.height / 2 && !n.hit && !n.holding) {
               showFeedback(pIdx, "MISS!", "var(--accent-pink)");
               p.combo = 0;
               document.getElementById(`combo-${pIdx}`).innerText = p.combo;
@@ -1352,7 +1798,7 @@
       }
 
       function triggerHit(pIdx, keyIndex) {
-        playSound(laneFreqs[keyIndex], 0.2);
+        // Frets are silent; the soundtrack remains the only music source.
         activeHolds[`${pIdx}-${keyIndex}`] = true;
 
         const fret = document.getElementById(`fret-${pIdx}-${keyIndex}`);
@@ -1370,15 +1816,15 @@
         const p = players[pIdx];
         if (!p) return;
 
-        const boardHeight =
-          document.querySelector(".board")?.clientHeight || 600;
-        const targetY = boardHeight - 90;
+        const fretRect = fret?.getBoundingClientRect();
+        const targetY = (fretRect ? fretRect.top + fretRect.height / 2 : window.innerHeight - 120) + hitOffsetMs * (noteSpeed / 1000);
         let closestIdx = -1;
         let minDistance = Infinity;
 
         p.notes.forEach((n, idx) => {
           if (n.key === keyIndex && !n.hit && !n.holding) {
-            const dist = Math.abs(n.top - targetY);
+            const noteRect = n.el.getBoundingClientRect();
+            const dist = Math.abs(noteRect.top + noteRect.height / 2 - targetY);
             if (dist < minDistance) {
               minDistance = dist;
               closestIdx = idx;
@@ -1386,7 +1832,8 @@
           }
         });
 
-        if (closestIdx !== -1 && minDistance < 65) {
+        const timingWindow = 12;
+        if (closestIdx !== -1 && minDistance <= timingWindow) {
           const note = p.notes[closestIdx];
 
           if (note.isHold) {
@@ -1397,20 +1844,34 @@
             note.el.remove();
             p.notes.splice(closestIdx, 1);
 
-            let points = minDistance < 22 ? 100 : minDistance < 45 ? 70 : 40;
+            const accuracy = minDistance < 18 ? "PERFECT!" : minDistance < 34 ? "GREAT!" : minDistance < 52 ? "GOOD!" : "OK!";
+            let points = minDistance < 18 ? 100 : minDistance < 34 ? 80 : minDistance < 52 ? 55 : 30;
             showFeedback(
               pIdx,
-              minDistance < 22 ? "PERFECT!" : "GREAT!",
-              "var(--accent-green)",
+              accuracy,
+              minDistance < 34 ? "var(--accent-green)" : "var(--accent-yellow)",
             );
 
             p.combo++;
+            bestCombo = Math.max(bestCombo, p.combo);
             p.score += points + p.combo * 5;
+            roundNotesHit++;
+            if (minDistance < 18) roundNotesPerfect++;
+            if (playerAccuracyStats[pIdx]) {
+              playerAccuracyStats[pIdx].hit++;
+              if (minDistance < 18) playerAccuracyStats[pIdx].perfect++;
+            }
             document.getElementById(`score-${pIdx}`).innerText = p.score;
             document.getElementById(`combo-${pIdx}`).innerText = p.combo;
+            const bestLabel = document.querySelector(`#track-${pIdx} .combo-best`);
+            if (bestLabel) bestLabel.textContent = `BEST ${bestCombo}`;
+            if (!isOnline) {
+              const personalBest = Number(localStorage.getItem("musikManiaBestScore") || 0);
+              if (p.score > personalBest) localStorage.setItem("musikManiaBestScore", String(p.score));
+            }
           }
 
-          if (isOnline && pIdx === playerRole) {
+          if (isOnline && (isMobileLayout() ? pIdx === 0 : pIdx === playerRole)) {
             const roomRef = window.doc(window.db, "rooms", roomId);
             const updateData = {};
             updateData[`p${playerRole + 1}_score`] = p.score;
@@ -1458,19 +1919,32 @@
       if ("serviceWorker" in navigator) {
         window.addEventListener("load", () => {
           navigator.serviceWorker
-            .register("sw.js")
+            .register("sw.js", { scope: "./" })
             .catch((err) => console.log(err));
         });
       }
 
       // Expose fungsi ke scope global HTML onclick
       window.startGame = startGame;
+      window.restartGame = restartGame;
       window.generateRoomCode = generateRoomCode;
       window.joinOnlineRoom = joinOnlineRoom;
       window.toggleReadyStatus = toggleReadyStatus;
       window.leaveLobby = leaveLobby;
       window.exitGame = exitGame;
       window.toggleSettings = toggleSettings;
+      window.loadCustomSong = loadCustomSong;
+      window.selectBuiltInSong = selectBuiltInSong;
+      const hitOffsetControl = document.getElementById("hit-offset");
+      hitOffsetControl.value = String(hitOffsetMs);
+      document.getElementById("hit-offset-value").textContent = `${hitOffsetMs} ms`;
+      hitOffsetControl.addEventListener("input", () => {
+        document.getElementById("hit-offset-value").textContent = `${hitOffsetControl.value} ms`;
+      });
+      hitOffsetControl.addEventListener("change", () => {
+        hitOffsetMs = Number(hitOffsetControl.value) || 0;
+        localStorage.setItem("musikManiaHitOffset", String(hitOffsetMs));
+      });
     </script>
   </body>
 </html>

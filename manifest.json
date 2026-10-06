@@ -1,0 +1,17 @@
+{
+  "id": "./",
+  "name": "Musik Mania — Ultimate Beat Experience",
+  "short_name": "Musik Mania",
+  "description": "Game ritme neon yang bisa dimainkan langsung di ponsel.",
+  "lang": "id",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#040209",
+  "theme_color": "#080511",
+  "categories": ["games", "music"],
+  "icons": [
+    { "src": "./icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
