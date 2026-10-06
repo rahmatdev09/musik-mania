@@ -302,6 +302,16 @@
         align-items: center;
         font-weight: 700;
       }
+      .key-bindings { width: min(360px, 100%); display: grid; gap: 9px; }
+      .key-binding-row { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; padding: 9px 12px; border: 1px solid var(--glass-border); border-radius: 13px; background: rgba(255,255,255,.035); font-size: .82rem; font-weight: 800; }
+      .key-binding-button { min-width: 70px; padding: 8px 10px; border: 1px solid rgba(0,240,255,.35); border-radius: 10px; color: white; background: rgba(0,240,255,.1); font-weight: 900; }
+      .key-binding-button.listening { color: var(--accent-yellow); border-color: var(--accent-yellow); }
+      .achievement-list { width: min(360px, 100%); max-height: 48vh; overflow-y: auto; display: grid; gap: 8px; margin: 10px 0 16px; }
+      .achievement-item { display:flex; align-items:center; gap:12px; padding:11px 13px; text-align:left; border:1px solid var(--glass-border); border-radius:14px; background:rgba(255,255,255,.035); }
+      .achievement-item.locked { opacity:.45; filter:grayscale(1); }
+      .achievement-icon { font-size:1.5rem; }
+      .achievement-item strong { display:block; font-size:.82rem; }
+      .achievement-item small { color:rgba(255,255,255,.64); font-size:.7rem; }
 
       #game-container {
         display: none;
@@ -573,8 +583,8 @@
       /* NOTES DENGAN EFEK GLOW MEMUKAU */
       .note {
         position: absolute;
-        width: 48px;
-        height: 48px;
+        width: clamp(52px, 72%, 88px);
+        height: clamp(52px, 72%, 88px);
         border-radius: 50%;
         top: -50px;
         transform: translateX(-50%);
@@ -784,7 +794,7 @@
         .game-audio-controls { top: max(104px, calc(env(safe-area-inset-top) + 92px)); }
         .fret-target { flex: 0 0 min(21vw, 78px); width: min(21vw, 78px); height: min(21vw, 78px); font-size: clamp(1rem, 5vw, 1.4rem); }
         .target-bar { padding: 0 1px; bottom: max(42px, env(safe-area-inset-bottom)); }
-        .note { width: 38px; height: 38px; }
+        .note { width: min(76%, 96px); height: min(76%, 96px); }
         .feedback { font-size: clamp(1.5rem, 7vw, 2rem); }
         .player-card-list { gap: 10px; }
         .player-card { padding: 14px 8px; }
@@ -893,6 +903,7 @@
         <button class="btn-ui game-start-button" onclick="joinOnlineRoom()">
           MASUK ROOM ONLINE
         </button>
+        <button class="btn-ui" onclick="toggleAchievements(true)">🏆 PENCAPAIAN</button>
         <button
           class="btn-ui"
           style="background: rgba(255, 255, 255, 0.02)"
@@ -969,6 +980,9 @@
           value="0.4"
         />
       </div>
+      <h3 style="margin-top:18px;font-weight:900">KONTROL KEYBOARD · PLAYER 1</h3>
+      <div class="key-bindings" id="key-bindings"></div>
+      <p style="max-width:340px;color:rgba(255,255,255,.58);font-size:.7rem;text-align:center">Tekan UBAH lalu tombol keyboard yang ingin dipakai. Tombol panah dan WASD tetap menjadi pengaturan awal.</p>
       <button
         class="btn-ui btn-primary"
         style="width: 300px; margin-top: 30px"
@@ -1022,6 +1036,13 @@
         <input type="range" id="hit-offset" min="-120" max="120" step="5" value="0" />
         <span id="hit-offset-value">0 ms</span>
       </div>
+    </div>
+
+    <div id="achievement-modal" role="dialog" aria-modal="true" aria-labelledby="achievement-title" style="display:none;position:fixed;inset:0;z-index:140;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:rgba(4,2,9,.96);backdrop-filter:blur(20px)">
+      <h2 id="achievement-title" style="font-weight:900;margin-bottom:8px">KOLEKSI PENCAPAIAN</h2>
+      <p id="achievement-count" style="color:var(--accent-cyan);font-size:.82rem;font-weight:800"></p>
+      <div class="achievement-list" id="achievement-list"></div>
+      <button class="btn-ui btn-primary" style="width:min(300px,100%)" onclick="toggleAchievements(false)">KEMBALI</button>
     </div>
 
     <div id="result-modal" role="dialog" aria-modal="true" aria-labelledby="result-title">
@@ -1170,6 +1191,99 @@
       let activePointerFret = null;
       let gamePaused = false;
       let pauseStartedAt = 0;
+      const achievementDefinitions = [
+        { id: "first-song", icon: "🎵", title: "Debut", description: "Selesaikan lagu pertamamu.", qualifies: (stats) => stats.games >= 1 },
+        { id: "combo-25", icon: "🔥", title: "Combo 25", description: "Raih combo terbaik minimal 25.", qualifies: (stats) => stats.bestCombo >= 25 },
+        { id: "combo-100", icon: "⚡", title: "Combo 100", description: "Raih combo terbaik minimal 100.", qualifies: (stats) => stats.bestCombo >= 100 },
+        { id: "accuracy-90", icon: "🎯", title: "Tepat Sasaran", description: "Selesaikan lagu dengan akurasi 90%.", qualifies: (stats) => stats.bestAccuracy >= 90 },
+        { id: "perfect-50", icon: "💎", title: "Kilau Sempurna", description: "Dapatkan 50 hit PERFECT dalam satu lagu.", qualifies: (stats) => stats.bestPerfectRun >= 50 },
+        { id: "marathon", icon: "🏁", title: "Pelari Neon", description: "Selesaikan Neon Marathon.", qualifies: (stats) => stats.marathonComplete },
+      ];
+      const defaultPlayerKeys = ["ArrowLeft", "ArrowUp", "ArrowDown", "ArrowRight"];
+      let playerOneKeys = loadPlayerKeys();
+      let pendingKeyBinding = -1;
+
+      function loadPlayerKeys() {
+        try {
+          const stored = JSON.parse(localStorage.getItem("musikManiaPlayerKeys") || "null");
+          return Array.isArray(stored) && stored.length === 4 ? stored : [...defaultPlayerKeys];
+        } catch (_) {
+          return [...defaultPlayerKeys];
+        }
+      }
+
+      function savePlayerKeys() {
+        localStorage.setItem("musikManiaPlayerKeys", JSON.stringify(playerOneKeys));
+        renderKeyBindings();
+      }
+
+      function renderKeyBindings() {
+        const container = document.getElementById("key-bindings");
+        if (!container) return;
+        container.innerHTML = playerOneKeys.map((key, lane) => `
+          <div class="key-binding-row"><span>Jalur ${lane + 1}</span><kbd>${escapeHtml(keyLabel(key))}</kbd><button class="key-binding-button ${pendingKeyBinding === lane ? "listening" : ""}" type="button" data-bind-lane="${lane}">${pendingKeyBinding === lane ? "TEKAN TOMBOL" : "UBAH"}</button></div>
+        `).join("");
+        container.querySelectorAll("[data-bind-lane]").forEach((button) => {
+          button.addEventListener("click", () => {
+            pendingKeyBinding = Number(button.dataset.bindLane);
+            renderKeyBindings();
+          });
+        });
+      }
+
+      function keyLabel(key) {
+        return ({ ArrowLeft: "←", ArrowUp: "↑", ArrowDown: "↓", ArrowRight: "→", " ": "SPACE" })[key] || key.toUpperCase();
+      }
+
+      function toggleAchievements(show) {
+        renderAchievements();
+        document.getElementById("achievement-modal").style.display = show ? "flex" : "none";
+      }
+
+      function getAchievementStats() {
+        try {
+          return JSON.parse(localStorage.getItem("musikManiaAchievements") || "{}") || {};
+        } catch (_) {
+          return {};
+        }
+      }
+
+      function renderAchievements() {
+        const stats = getAchievementStats();
+        const unlocked = new Set(stats.unlocked || []);
+        document.getElementById("achievement-count").textContent = `${unlocked.size} / ${achievementDefinitions.length} TERBUKA`;
+        document.getElementById("achievement-list").innerHTML = achievementDefinitions.map((achievement) => {
+          const isUnlocked = unlocked.has(achievement.id);
+          return `<div class="achievement-item ${isUnlocked ? "" : "locked"}"><span class="achievement-icon">${achievement.icon}</span><div><strong>${achievement.title} ${isUnlocked ? "✓" : "🔒"}</strong><small>${achievement.description}</small></div></div>`;
+        }).join("");
+      }
+
+      function updateAchievements() {
+        const stats = getAchievementStats();
+        const previousBestCombo = stats.bestCombo || 0;
+        stats.games = (stats.games || 0) + 1;
+        stats.bestCombo = Math.max(stats.bestCombo || 0, bestCombo);
+        const perfectTotal = playerAccuracyStats.reduce((total, player) => total + player.perfect, 0);
+        stats.bestPerfectRun = Math.max(stats.bestPerfectRun || 0, perfectTotal);
+        stats.bestAccuracy = Math.max(stats.bestAccuracy || 0, ...playerAccuracyStats.map(accuracyPercent));
+        if (!customSongSelected && document.getElementById("song-select").value === "3") stats.marathonComplete = true;
+        const unlocked = new Set(stats.unlocked || []);
+        const newlyUnlocked = [];
+        achievementDefinitions.forEach((achievement) => {
+          if (!unlocked.has(achievement.id) && achievement.qualifies(stats)) {
+            unlocked.add(achievement.id);
+            newlyUnlocked.push(achievement.title);
+          }
+        });
+        stats.unlocked = [...unlocked];
+        localStorage.setItem("musikManiaAchievements", JSON.stringify(stats));
+        if (newlyUnlocked.length) {
+          const message = newlyUnlocked.length === 1
+            ? `LENCANA: ${newlyUnlocked[0]}!`
+            : `${newlyUnlocked.length} LENCANA TERBUKA!`;
+          window.setTimeout(() => showFeedback(0, message, "var(--accent-yellow)"), 180);
+        }
+      }
 
       const songs = [
         [
@@ -1445,6 +1559,7 @@
       function finishGame() {
         if (roundFinished || !players.length) return;
         roundFinished = true;
+        updateAchievements();
         gamePaused = false;
         stopSongMusic();
         clearInterval(songIntervalId);
@@ -1661,7 +1776,7 @@
 
       const keyMappings = [
         {
-          keys: ["ArrowLeft", "ArrowUp", "ArrowDown", "ArrowRight"],
+          keys: playerOneKeys,
           labels: ["←", "↑", "↓", "→"],
         },
         { keys: ["a", "w", "s", "d"], labels: ["A", "W", "S", "D"] },
@@ -1694,6 +1809,22 @@
       function isMobileLayout() {
         return window.matchMedia("(max-width: 700px), (pointer: coarse)").matches;
       }
+
+      window.addEventListener("keydown", (event) => {
+        if (pendingKeyBinding < 0) return;
+        event.preventDefault();
+        if (event.key === "Escape") {
+          pendingKeyBinding = -1;
+          renderKeyBindings();
+          return;
+        }
+        if (event.key.length !== 1 && !event.key.startsWith("Arrow")) return;
+        const duplicateLane = playerOneKeys.findIndex((key, lane) => lane !== pendingKeyBinding && key.toLowerCase() === event.key.toLowerCase());
+        if (duplicateLane !== -1) playerOneKeys[duplicateLane] = playerOneKeys[pendingKeyBinding];
+        playerOneKeys[pendingKeyBinding] = event.key;
+        pendingKeyBinding = -1;
+        savePlayerKeys();
+      }, true);
 
       function createTrackHTML(pIdx, label) {
         const onlineMobile = isOnline && isMobileLayout();
@@ -2009,8 +2140,8 @@
             const noteRect = n.el.getBoundingClientRect();
             const noteCenter = noteRect.top + noteRect.height / 2 - highwayRect.top;
             const fretRadius = fretRect.height / 2;
-            // Miss only after the note's center has passed the full visible target circle.
-            if (noteCenter > targetY + fretRadius + noteRect.height / 2 && !n.hit && !n.holding) {
+            const missMargin = Math.max(6, noteRect.height * 0.15);
+            if (noteCenter > targetY + fretRadius + missMargin && !n.hit && !n.holding) {
               showFeedback(pIdx, "MISS!", "var(--accent-pink)");
               p.combo = 0;
               document.getElementById(`combo-${pIdx}`).innerText = p.combo;
@@ -2044,9 +2175,11 @@
         if (!p) return;
 
         const fretRect = fret?.getBoundingClientRect();
-        const targetY = (fretRect ? fretRect.top + fretRect.height / 2 : window.innerHeight - 120) + hitOffsetMs * (noteSpeed / 1000);
+        if (!fretRect) return;
+        const targetY = fretRect.top + fretRect.height / 2 + hitOffsetMs * (noteSpeed / 1000);
         let closestIdx = -1;
         let minDistance = Infinity;
+        let closestNoteRadius = 0;
 
         p.notes.forEach((n, idx) => {
           if (n.key === keyIndex && !n.hit && !n.holding) {
@@ -2055,11 +2188,13 @@
             if (dist < minDistance) {
               minDistance = dist;
               closestIdx = idx;
+              closestNoteRadius = noteRect.height / 2;
             }
           }
         });
 
-        const timingWindow = 12;
+        const fretRadius = fretRect.height / 2;
+        const timingWindow = Math.max(18, Math.min(46, (fretRadius + closestNoteRadius) * 0.72));
         if (closestIdx !== -1 && minDistance <= timingWindow) {
           const note = p.notes[closestIdx];
 
@@ -2071,22 +2206,22 @@
             note.el.remove();
             p.notes.splice(closestIdx, 1);
 
-            const accuracy = minDistance < 18 ? "PERFECT!" : minDistance < 34 ? "GREAT!" : minDistance < 52 ? "GOOD!" : "OK!";
-            let points = minDistance < 18 ? 100 : minDistance < 34 ? 80 : minDistance < 52 ? 55 : 30;
+            const accuracy = minDistance < 9 ? "PERFECT!" : minDistance < 20 ? "GREAT!" : minDistance < 32 ? "GOOD!" : "OK!";
+            let points = minDistance < 9 ? 100 : minDistance < 20 ? 80 : minDistance < 32 ? 55 : 30;
             showFeedback(
               pIdx,
               accuracy,
-              minDistance < 34 ? "var(--accent-green)" : "var(--accent-yellow)",
+              minDistance < 20 ? "var(--accent-green)" : "var(--accent-yellow)",
             );
 
             p.combo++;
             bestCombo = Math.max(bestCombo, p.combo);
             p.score += points + p.combo * 5;
             roundNotesHit++;
-            if (minDistance < 18) roundNotesPerfect++;
+            if (minDistance < 9) roundNotesPerfect++;
             if (playerAccuracyStats[pIdx]) {
               playerAccuracyStats[pIdx].hit++;
-              if (minDistance < 18) playerAccuracyStats[pIdx].perfect++;
+              if (minDistance < 9) playerAccuracyStats[pIdx].perfect++;
             }
             document.getElementById(`score-${pIdx}`).innerText = p.score;
             document.getElementById(`combo-${pIdx}`).innerText = p.combo;
@@ -2126,7 +2261,7 @@
       }
 
       window.addEventListener("keydown", (e) => {
-        if (gamePaused) return;
+        if (gamePaused || pendingKeyBinding >= 0 || document.getElementById("settings-modal").style.display === "flex") return;
         keyMappings.forEach((map, pIdx) => {
           const keyIdx = map.keys.indexOf(e.key);
           if (keyIdx !== -1 && !activeHolds[`${pIdx}-${keyIdx}`]) {
@@ -2136,6 +2271,7 @@
       });
 
       window.addEventListener("keyup", (e) => {
+        if (pendingKeyBinding >= 0 || document.getElementById("settings-modal").style.display === "flex") return;
         keyMappings.forEach((map, pIdx) => {
           const keyIdx = map.keys.indexOf(e.key);
           if (keyIdx !== -1) {
@@ -2161,9 +2297,12 @@
       window.leaveLobby = leaveLobby;
       window.exitGame = exitGame;
       window.toggleSettings = toggleSettings;
+      window.toggleAchievements = toggleAchievements;
       window.loadCustomSong = loadCustomSong;
       window.selectBuiltInSong = selectBuiltInSong;
       const hitOffsetControl = document.getElementById("hit-offset");
+      renderKeyBindings();
+      renderAchievements();
       hitOffsetControl.value = String(hitOffsetMs);
       document.getElementById("hit-offset-value").textContent = `${hitOffsetMs} ms`;
       hitOffsetControl.addEventListener("input", () => {
