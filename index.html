@@ -851,6 +851,18 @@
         <label style="display:flex;align-items:center;gap:10px;font-size:.78rem;color:rgba(255,255,255,.72)">
           <span>Tempo lagu sendiri</span><input id="custom-bpm" type="number" min="50" max="240" value="120" class="input-ui" style="width:90px;padding:9px" />
         </label>
+        <div style="display:flex;gap:8px">
+          <label style="flex:1;font-size:.72rem;color:rgba(255,255,255,.72)">Nada dasar
+            <select id="custom-key" class="input-ui" style="padding:10px;margin-top:5px">
+              <option value="0">C</option><option value="2">D</option><option value="4">E</option><option value="5">F</option><option value="7">G</option><option value="9">A</option><option value="11">B</option>
+            </select>
+          </label>
+          <label style="flex:1;font-size:.72rem;color:rgba(255,255,255,.72)">Tangga nada
+            <select id="custom-scale" class="input-ui" style="padding:10px;margin-top:5px">
+              <option value="major">Mayor</option><option value="minor">Minor</option>
+            </select>
+          </label>
+        </div>
 
         <select id="difficulty" class="input-ui">
           <option value="easy">EASY</option>
@@ -1141,6 +1153,9 @@
       let customSongReady = false;
       let customSongLoadToken = 0;
       let beatIntervalMs = 500;
+      let roundMelodyNotes = [];
+      let beatSpawnStep = 0;
+      let customMelodyLanes = [];
       let roundSongName = "";
       let roundNotesSpawned = 0;
       let roundNotesHit = 0;
@@ -1194,6 +1209,31 @@
         osc.stop(audioCtx.currentTime + duration);
       }
 
+      function buildCustomMelodyLanes() {
+        const tonic = Number(document.getElementById("custom-key").value) || 0;
+        const scale = document.getElementById("custom-scale").value === "minor"
+          ? [0, 2, 3, 5, 7, 8, 10]
+          : [0, 2, 4, 5, 7, 9, 11];
+        const degrees = [0, 2, 4, 2, 1, 3, 2, 0, 3, 4, 6, 4, 2, 1, 0, 0];
+        return degrees.map((degree) => {
+          const pitchClass = (tonic + scale[degree]) % 12;
+          return Math.round(pitchClass / 3) % 4;
+        });
+      }
+
+      function melodyLaneForFrequency(frequency) {
+        let nearestLane = 0;
+        let smallestGap = Infinity;
+        laneFreqs.forEach((laneFrequency, lane) => {
+          const gap = Math.abs(Math.log2(frequency / laneFrequency));
+          if (gap < smallestGap) {
+            smallestGap = gap;
+            nearestLane = lane;
+          }
+        });
+        return nearestLane;
+      }
+
       function startSongMusic() {
         const songIdx = parseInt(document.getElementById("song-select").value, 10) || 0;
         const songNotes = songs[songIdx];
@@ -1205,6 +1245,11 @@
         resumeSongPlayback = null;
         roundSongName = isCustomSong ? customSongAudio.name : document.getElementById("song-select").selectedOptions[0].textContent;
         const notesForSong = isCustomSong ? null : songNotes;
+        roundMelodyNotes = notesForSong
+          ? notesForSong.map((freq) => ({ freq, lane: melodyLaneForFrequency(freq) }))
+          : [];
+        customMelodyLanes = isCustomSong ? buildCustomMelodyLanes() : [];
+        beatSpawnStep = 0;
         const noteCount = notesForSong ? notesForSong.length : 0;
         songDurationMs = isCustomSong ? Infinity : noteCount * beatIntervalMs;
         songStartedAt = performance.now();
@@ -1245,7 +1290,7 @@
           const dueAt = songStartedAt + songNoteStep * beatIntervalMs;
           songNoteTimer = setTimeout(() => {
             if (gamePaused || roundFinished) return;
-            playSound(notesForSong[songNoteStep], Math.min(.25, beatIntervalMs / 1000), "triangle");
+            playSound(roundMelodyNotes[songNoteStep].freq, Math.min(.25, beatIntervalMs / 1000), "triangle");
             animateStageEq();
             songNoteStep++;
             playNextSongNote();
@@ -1762,10 +1807,12 @@
         if (customSongAudio && customSongSelected) {
           customSongAudio.onplay = () => { songStartedAt = performance.now(); };
           customSongAudio.onended = finishGame;
+          spawnBeatNote();
           songIntervalId = setInterval(() => {
             if (customSongAudio && !customSongAudio.paused && !roundFinished) spawnBeatNote();
           }, Math.max(180, 60000 / Number(document.getElementById("custom-bpm").value || 120)));
         } else {
+          spawnBeatNote();
           songIntervalId = setInterval(spawnBeatNote, beatIntervalMs);
         }
       }
@@ -1871,9 +1918,14 @@
 
       function spawnBeatNote() {
         if (roundFinished) return;
-        const keyIndex = Math.floor(Math.random() * 4);
-        const isHold = Math.random() < 0.25;
-        const holdLength = isHold ? Math.floor(Math.random() * 100) + 80 : 0;
+        const isCustomSong = Boolean(customSongAudio && customSongSelected);
+        const keyIndex = isCustomSong
+          ? customMelodyLanes[beatSpawnStep % customMelodyLanes.length]
+          : roundMelodyNotes[beatSpawnStep % roundMelodyNotes.length]?.lane ?? 0;
+        const phraseBeat = beatSpawnStep % 16;
+        const isHold = phraseBeat === 7 || phraseBeat === 15;
+        const holdLength = isHold ? 110 : 0;
+        beatSpawnStep++;
         let spawned = false;
 
         players.forEach((p, pIdx) => {
